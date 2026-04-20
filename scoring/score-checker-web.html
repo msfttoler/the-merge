@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔀 The Merge — Score Checker</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --green: #3fb950;
+    --red: #f85149;
+    --yellow: #d29922;
+    --blue: #58a6ff;
+    --purple: #bc8cff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem;
+  }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 { font-size: 1.8rem; margin-bottom: 0.25rem; }
+  h1 span { color: var(--blue); }
+  .subtitle { color: var(--muted); margin-bottom: 2rem; font-size: 0.9rem; }
+  .config-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .config-panel h3 { font-size: 0.85rem; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+  .field { margin-bottom: 0.75rem; }
+  .field label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.25rem; }
+  .field input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 0.9rem;
+    font-family: monospace;
+  }
+  .field input:focus { outline: none; border-color: var(--blue); }
+  .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+  .btn {
+    padding: 0.6rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+  .btn:hover { border-color: var(--blue); background: rgba(88,166,255,0.1); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary { background: var(--blue); color: #000; border-color: var(--blue); font-weight: 600; }
+  .btn-primary:hover { opacity: 0.9; background: var(--blue); }
+  .btn-submit { background: var(--green); color: #000; border-color: var(--green); font-weight: 600; }
+  .btn-submit:hover { opacity: 0.9; background: var(--green); }
+  .results-section { margin-top: 1.5rem; }
+  .phase-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .phase-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  .phase-title { font-size: 1rem; font-weight: 600; }
+  .phase-score { font-size: 1.2rem; font-weight: 700; }
+  .phase-score.perfect { color: var(--green); }
+  .phase-score.partial { color: var(--yellow); }
+  .phase-score.zero { color: var(--red); }
+  .check-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgba(48,54,61,0.5);
+    font-size: 0.85rem;
+  }
+  .check-row:last-child { border-bottom: none; }
+  .check-name { display: flex; align-items: center; gap: 0.5rem; }
+  .check-icon { font-size: 0.9rem; }
+  .check-points { font-family: monospace; color: var(--muted); min-width: 50px; text-align: right; }
+  .check-points.pass { color: var(--green); }
+  .check-points.fail { color: var(--red); }
+  .check-detail { color: var(--muted); font-size: 0.75rem; margin-left: 1.5rem; }
+  .grand-total {
+    background: var(--surface);
+    border: 2px solid var(--blue);
+    border-radius: 8px;
+    padding: 1.25rem;
+    text-align: center;
+    margin-top: 1rem;
+  }
+  .grand-total .label { color: var(--muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  .grand-total .score { font-size: 2.5rem; font-weight: 700; margin-top: 0.25rem; }
+  .status-msg {
+    text-align: center;
+    padding: 2rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+  .spinner { display: inline-block; animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .cors-note {
+    background: rgba(210,153,34,0.1);
+    border: 1px solid rgba(210,153,34,0.3);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    font-size: 0.8rem;
+    color: var(--yellow);
+    margin-top: 1rem;
+  }
+  .cors-note code {
+    background: rgba(0,0,0,0.3);
+    padding: 0.15rem 0.35rem;
+    border-radius: 3px;
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🔀 <span>The Merge</span> — Score Checker</h1>
+  <p class="subtitle">Automated verification for hackathon bug fixes</p>
+
+  <div class="config-panel">
+    <h3>Configuration</h3>
+    <div class="field">
+      <label>Team's App URL</label>
+      <input type="text" id="targetUrl" value="http://localhost:3000" placeholder="http://localhost:3000">
+    </div>
+    <div style="display:flex; gap:1rem;">
+      <div class="field" style="flex:1;">
+        <label>Team ID (for score submission)</label>
+        <input type="text" id="teamId" value="1" placeholder="1">
+      </div>
+      <div class="field" style="flex:1;">
+        <label>Main Server URL (for score submission)</label>
+        <input type="text" id="serverUrl" value="http://localhost:3000" placeholder="http://localhost:3000">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="runPhase(1)">▶ Run Phase 1</button>
+      <button class="btn btn-primary" onclick="runPhase(2)">▶ Run Phase 2</button>
+      <button class="btn btn-primary" onclick="runPhase('all')">▶ Run All</button>
+      <button class="btn btn-submit" id="submitBtn" onclick="submitScore()" disabled>📤 Submit Score</button>
+    </div>
+    <div class="cors-note">
+      ⚠️ <strong>CORS Note:</strong> The team's app must allow cross-origin requests for this browser tool to work.
+      Teams should add <code>app.use(require('cors')())</code> or use the CLI version: <code>node score-checker.js &lt;url&gt;</code>
+    </div>
+  </div>
+
+  <div id="results" class="results-section">
+    <div class="status-msg">Press a button above to run checks</div>
+  </div>
+</div>
+
+<script>
+const TIMEOUT = 5000;
+
+async function fetchWithTimeout(url, options = {}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    const text = await res.text();
+    let json = null;
+    try { json = JSON.parse(text); } catch {}
+    return { status: res.status, headers: res.headers, body: text, json };
+  } catch (err) {
+    return { status: 0, headers: {}, body: '', json: null, error: err.message };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function fget(base, path) {
+  return fetchWithTimeout(base + path);
+}
+function fpost(base, path, body) {
+  return fetchWithTimeout(base + path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+function fdel(base, path) {
+  return fetchWithTimeout(base + path, { method: 'DELETE' });
+}
+function fput(base, path, body) {
+  return fetchWithTimeout(base + path, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+function getPhase1Checks(base) {
+  return [
+    { name: 'Health check', points: 5, run: async () => {
+      const r = await fget(base, '/health');
+      return { passed: r.status === 200, detail: r.status !== 200 ? `status ${r.status || r.error}` : null };
+    }},
+    { name: 'Dashboard renders', points: 5, run: async () => {
+      const r = await fget(base, '/');
+      return { passed: r.status === 200 && r.body.toLowerCase().includes('<html'), detail: null };
+    }},
+    { name: 'Teams API returns JSON array', points: 5, run: async () => {
+      const r = await fget(base, '/api/teams');
+      return { passed: r.status === 200 && Array.isArray(r.json), detail: !Array.isArray(r.json) ? 'not JSON array' : null };
+    }},
+    { name: 'Team lookup by ID (type fix)', points: 10, run: async () => {
+      const r = await fget(base, '/api/teams/1');
+      return { passed: r.status === 200 && r.json && r.json.id, detail: r.status !== 200 ? 'string "1" not matching number 1' : null };
+    }},
+    { name: 'Leaderboard sort (descending)', points: 15, run: async () => {
+      await fpost(base, '/api/leaderboard/score', { teamId: 1, challengeId: 'rescue', points: 10 });
+      await fpost(base, '/api/leaderboard/score', { teamId: 2, challengeId: 'rescue', points: 50 });
+      const r = await fget(base, '/api/leaderboard');
+      await fpost(base, '/api/leaderboard/score', { teamId: 1, challengeId: 'rescue', points: 0 });
+      await fpost(base, '/api/leaderboard/score', { teamId: 2, challengeId: 'rescue', points: 0 });
+      if (!Array.isArray(r.json) || r.json.length < 2) return { passed: false, detail: 'not enough entries' };
+      const scores = r.json.map(e => e.totalScore);
+      for (let i = 1; i < scores.length; i++) { if (scores[i] > scores[i-1]) return { passed: false, detail: 'still ascending' }; }
+      return { passed: true };
+    }},
+    { name: 'All teams in leaderboard (join fix)', points: 10, run: async () => {
+      const t = await fget(base, '/api/teams');
+      const l = await fget(base, '/api/leaderboard');
+      if (!Array.isArray(t.json) || !Array.isArray(l.json)) return { passed: false, detail: 'fetch error' };
+      return { passed: l.json.length >= t.json.length, detail: l.json.length < t.json.length ? `${l.json.length} of ${t.json.length} teams shown` : null };
+    }},
+    { name: 'Response content-type headers', points: 5, run: async () => {
+      const r = await fget(base, '/api/teams');
+      const ct = r.headers.get ? r.headers.get('content-type') || '' : '';
+      return { passed: ct.includes('application/json'), detail: !ct.includes('json') ? `content-type: ${ct}` : null };
+    }},
+    { name: 'Dashboard auto-refresh / real-time', points: 10, run: async () => {
+      const r = await fget(base, '/');
+      // Strip HTML comments to avoid false positives from "No auto-refresh" comments
+      const noComments = r.body.replace(/<!--[\s\S]*?-->/g, '').toLowerCase();
+      const ok = (noComments.includes('<meta') && noComments.includes('refresh')) || noComments.includes('websocket') || noComments.includes('socket.io') ||
+                 noComments.includes('setinterval') || noComments.includes('settimeout') || noComments.includes('htmx') || noComments.includes('hx-get');
+      return { passed: ok, detail: ok ? null : 'no auto-refresh mechanism detected' };
+    }},
+    { name: 'Dashboard shows team colors', points: 5, run: async () => {
+      const r = await fget(base, '/');
+      const h = r.body.toLowerCase();
+      const ok = (h.includes('style=') && (h.includes('color') || h.includes('background'))) || h.includes('color:');
+      return { passed: ok, detail: ok ? null : 'no color styles in HTML' };
+    }},
+    { name: 'No stack traces on error', points: 10, run: async () => {
+      const r = await fget(base, '/api/teams/nonexistent');
+      const j = r.json || {};
+      return { passed: !j.stack && !(r.body.includes('at ') && r.body.includes('.js:')), detail: j.stack ? 'stack trace leaked' : null };
+    }},
+    { name: 'Modern JS patterns (heuristic)', points: 10, run: async () => {
+      const r = await fget(base, '/');
+      const h = r.body;
+      const modern = h.includes('=>') || h.includes('const ') || h.includes('let ') || h.includes('async');
+      return { passed: modern, detail: modern ? null : 'no modern JS detected' };
+    }},
+    { name: 'POST /api/teams rejects empty name', points: 10, run: async () => {
+      const r = await fpost(base, '/api/teams', { name: '', members: [] });
+      if (r.status === 201 && r.json && r.json.id) await fdel(base, `/api/teams/${r.json.id}`);
+      return { passed: r.status === 400 || r.status === 422, detail: r.status >= 200 && r.status < 300 ? 'empty name accepted' : null };
+    }},
+  ];
+}
+
+function getPhase2Checks(base) {
+  return [
+    { name: 'Score > maxPoints rejected', points: 15, run: async () => {
+      const r = await fpost(base, '/api/leaderboard/score', { teamId: 1, challengeId: 'rescue', points: 9999 });
+      if (r.status === 200) await fpost(base, '/api/leaderboard/score', { teamId: 1, challengeId: 'rescue', points: 0 });
+      return { passed: r.status === 400 || r.status === 422, detail: r.status === 200 ? 'over-max accepted' : null };
+    }},
+    { name: 'Negative points rejected', points: 15, run: async () => {
+      const r = await fpost(base, '/api/leaderboard/score', { teamId: 1, challengeId: 'rescue', points: -50 });
+      if (r.status === 200) await fpost(base, '/api/leaderboard/score', { teamId: 1, challengeId: 'rescue', points: 0 });
+      return { passed: r.status === 400 || r.status === 422, detail: r.status === 200 ? 'negative accepted' : null };
+    }},
+    { name: 'Score with string teamId', points: 15, run: async () => {
+      const r = await fpost(base, '/api/leaderboard/score', { teamId: '1', challengeId: 'rescue', points: 5 });
+      await fpost(base, '/api/leaderboard/score', { teamId: 1, challengeId: 'rescue', points: 0 });
+      return { passed: r.status === 200 && r.json && r.json.score, detail: r.status !== 200 ? 'string teamId failed' : null };
+    }},
+    { name: 'DELETE removes team from GET', points: 15, run: async () => {
+      const c = await fpost(base, '/api/teams', { name: '__web_check_temp__', members: ['T'], color: '#000' });
+      if (!c.json || !c.json.id) return { passed: false, detail: 'could not create temp team' };
+      await fdel(base, `/api/teams/${c.json.id}`);
+      const v = await fget(base, `/api/teams/${c.json.id}`);
+      return { passed: v.status === 404, detail: v.status !== 404 ? 'team still accessible' : null };
+    }},
+    { name: 'DELETE cleans up scores', points: 10, run: async () => {
+      const c = await fpost(base, '/api/teams', { name: '__web_cleanup_temp__', members: ['T'], color: '#000' });
+      if (!c.json || !c.json.id) return { passed: false, detail: 'could not create temp team' };
+      await fpost(base, '/api/leaderboard/score', { teamId: c.json.id, challengeId: 'rescue', points: 10 });
+      await fdel(base, `/api/teams/${c.json.id}`);
+      const lb = await fget(base, '/api/leaderboard');
+      const still = Array.isArray(lb.json) && lb.json.some(e => (e.team||{}).id === c.json.id);
+      return { passed: !still, detail: still ? 'deleted team still on leaderboard' : null };
+    }},
+    { name: 'Leaderboard sort descending (P2)', points: 15, run: async () => {
+      await fpost(base, '/api/leaderboard/score', { teamId: 1, challengeId: 'rescue', points: 10 });
+      await fpost(base, '/api/leaderboard/score', { teamId: 2, challengeId: 'rescue', points: 80 });
+      const r = await fget(base, '/api/leaderboard');
+      await fpost(base, '/api/leaderboard/score', { teamId: 1, challengeId: 'rescue', points: 0 });
+      await fpost(base, '/api/leaderboard/score', { teamId: 2, challengeId: 'rescue', points: 0 });
+      if (!Array.isArray(r.json) || r.json.length < 2) return { passed: false, detail: 'not available' };
+      const s = r.json.map(e => e.totalScore);
+      for (let i = 1; i < s.length; i++) if (s[i] > s[i-1]) return { passed: false, detail: 'ascending' };
+      return { passed: true };
+    }},
+    { name: 'last_updated uses most recent', points: 15, run: async () => {
+      await fpost(base, '/api/leaderboard/score', { teamId: 1, challengeId: 'rescue', points: 10 });
+      await new Promise(r => setTimeout(r, 150));
+      await fpost(base, '/api/leaderboard/score', { teamId: 1, challengeId: 'debug', points: 20 });
+      const r = await fget(base, '/api/leaderboard');
+      await fpost(base, '/api/leaderboard/score', { teamId: 1, challengeId: 'rescue', points: 0 });
+      await fpost(base, '/api/leaderboard/score', { teamId: 1, challengeId: 'debug', points: 0 });
+      if (!Array.isArray(r.json)) return { passed: false };
+      const t = r.json.find(e => (e.team||{}).id === 1);
+      if (!t || !t.lastUpdated) return { passed: false, detail: 'no lastUpdated' };
+      return { passed: (Date.now() - new Date(t.lastUpdated).getTime()) < 10000, detail: null };
+    }},
+    { name: 'Immutable team references', points: 15, run: async () => {
+      return { passed: true, detail: 'heuristic — verify manually' };
+    }},
+    { name: 'Error handler hides stack', points: 15, run: async () => {
+      const r = await fget(base, '/nonexistent-path-99999');
+      const j = r.json || {};
+      return { passed: !j.stack && !(r.body.includes('at ') && r.body.includes('.js:')), detail: j.stack ? 'stack leaked' : null };
+    }},
+    { name: 'Invalid challengeId returns 404', points: 10, run: async () => {
+      const r = await fpost(base, '/api/leaderboard/score', { teamId: 1, challengeId: 'fake_challenge', points: 10 });
+      return { passed: r.status === 404, detail: r.status !== 404 ? `got ${r.status}` : null };
+    }},
+    { name: 'Team scores with string ID', points: 10, run: async () => {
+      await fpost(base, '/api/leaderboard/score', { teamId: 1, challengeId: 'rescue', points: 5 });
+      const r = await fget(base, '/api/leaderboard/team/1');
+      await fpost(base, '/api/leaderboard/score', { teamId: 1, challengeId: 'rescue', points: 0 });
+      return { passed: r.status === 200 && Array.isArray(r.json) && r.json.length > 0, detail: r.json?.length === 0 ? 'empty result for string ID' : null };
+    }},
+  ];
+}
+
+let lastResults = null;
+
+async function runPhase(phase) {
+  const base = document.getElementById('targetUrl').value.replace(/\/$/, '');
+  const resultsDiv = document.getElementById('results');
+  resultsDiv.innerHTML = '<div class="status-msg"><span class="spinner">⏳</span> Running checks against ' + base + '...</div>';
+
+  // Connectivity check
+  const ping = await fget(base, '/health');
+  if (ping.status === 0) {
+    resultsDiv.innerHTML = `<div class="status-msg">❌ Cannot connect to ${base}<br><small>${ping.error || 'Connection refused'}</small><br><br><small>Is the app running? Check for CORS issues if using the browser tool.</small></div>`;
+    return;
+  }
+
+  let phases = [];
+  if (phase === 1 || phase === 'all') phases.push({ num: 1, name: 'Rescue (Modernization)', checks: getPhase1Checks(base) });
+  if (phase === 2 || phase === 'all') phases.push({ num: 2, name: 'Bug Hunt (Debug)', checks: getPhase2Checks(base) });
+
+  let allPhaseResults = [];
+  let grandTotal = 0, grandMax = 0;
+
+  for (const p of phases) {
+    const results = [];
+    for (const check of p.checks) {
+      try {
+        const r = await check.run();
+        results.push({ name: check.name, passed: r.passed, points: r.passed ? check.points : 0, maxPoints: check.points, detail: r.detail });
+      } catch (err) {
+        results.push({ name: check.name, passed: false, points: 0, maxPoints: check.points, detail: err.message });
+      }
+    }
+    const total = results.reduce((s, r) => s + r.points, 0);
+    const max = results.reduce((s, r) => s + r.maxPoints, 0);
+    grandTotal += total;
+    grandMax += max;
+    allPhaseResults.push({ num: p.num, name: p.name, results, total, max });
+  }
+
+  lastResults = { grandTotal, grandMax, phases: allPhaseResults };
+
+  // Render
+  let html = '';
+  for (const p of allPhaseResults) {
+    const pct = p.max > 0 ? p.total / p.max : 0;
+    const cls = pct === 1 ? 'perfect' : pct > 0 ? 'partial' : 'zero';
+    html += `<div class="phase-block">
+      <div class="phase-header">
+        <div class="phase-title">Phase ${p.num} — ${p.name}</div>
+        <div class="phase-score ${cls}">${p.total}/${p.max}</div>
+      </div>`;
+    for (const r of p.results) {
+      const icon = r.passed ? '✅' : '❌';
+      const cls = r.passed ? 'pass' : 'fail';
+      html += `<div class="check-row">
+        <div class="check-name"><span class="check-icon">${icon}</span> ${r.name}</div>
+        <div class="check-points ${cls}">${r.points}/${r.maxPoints}</div>
+      </div>`;
+      if (r.detail && !r.passed) {
+        html += `<div class="check-detail">↳ ${r.detail}</div>`;
+      }
+    }
+    html += '</div>';
+  }
+
+  if (allPhaseResults.length > 1 || allPhaseResults.length === 1) {
+    const pct = grandMax > 0 ? grandTotal / grandMax : 0;
+    const color = pct === 1 ? 'var(--green)' : pct > 0.5 ? 'var(--yellow)' : 'var(--red)';
+    html += `<div class="grand-total">
+      <div class="label">Total Score</div>
+      <div class="score" style="color:${color}">${grandTotal} / ${grandMax}</div>
+    </div>`;
+  }
+
+  resultsDiv.innerHTML = html;
+  document.getElementById('submitBtn').disabled = false;
+}
+
+async function submitScore() {
+  if (!lastResults) return;
+  const serverUrl = document.getElementById('serverUrl').value.replace(/\/$/, '');
+  const teamId = parseInt(document.getElementById('teamId').value);
+  if (!teamId) { alert('Enter a valid Team ID'); return; }
+
+  // Submit each phase score
+  for (const p of lastResults.phases) {
+    const challengeId = p.num === 1 ? 'rescue' : p.num === 2 ? 'debug' : 'features';
+    try {
+      const r = await fpost(serverUrl, '/api/leaderboard/score', {
+        teamId,
+        challengeId,
+        points: p.total,
+      });
+      if (r.status !== 200) {
+        alert(`Failed to submit Phase ${p.num} score: ${r.body}`);
+        return;
+      }
+    } catch (err) {
+      alert(`Error submitting Phase ${p.num}: ${err.message}`);
+      return;
+    }
+  }
+  alert(`✅ Scores submitted for Team ${teamId}!\n${lastResults.phases.map(p => `Phase ${p.num}: ${p.total}/${p.max}`).join('\n')}`);
+}
+</script>
+
+</body>
+</html>

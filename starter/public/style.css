@@ -1,0 +1,87 @@
+/* ============================================================
+   Hackathon Leaderboard — "Minimum Viable Styling"
+   Last year's intern did their best. Bless their heart.
+   Design review feedback: "it looks like a spreadsheet"
+   Intern's response: "spreadsheets are a valid design language"
+   ============================================================ */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #f0f0f0;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 0;
+}
+
+h2 {
+    text-align: center;
+    color: #666;
+    font-weight: normal;
+    margin-top: 5px;
+}
+
+.timestamp {
+    text-align: center;
+    color: #999;
+    font-size: 12px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background: #333;
+    color: white;
+}
+
+.rank {
+    width: 50px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.team-name {
+    font-weight: bold;
+}
+
+.members {
+    color: #666;
+    font-size: 14px;
+}
+
+.score {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.updated {
+    color: #999;
+    font-size: 12px;
+}
+
+/* That's it. That's the whole stylesheet.
+   No dark mode. No animations. No responsive.
+   No team colors. No progress bars. No life.
+   No hover states. No transitions. No joy.
+   Just vibes. Sad, grey, Times-New-Roman-adjacent vibes.
+   Your mission: make this thing BEAUTIFUL.
+   Just a grey table on a grey background.
+   This is your canvas. Make it better. */

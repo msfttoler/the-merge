@@ -1,0 +1,32 @@
+# ──────────────────────────────────────────────
+#  The Merge — Docker Compose
+#  Runs the hackathon server with all event pages
+#  accessible from a single URL.
+#
+#  Usage:
+#    docker compose up --build
+#
+#  Endpoints:
+#    http://localhost:3000          → Dashboard (broken — that's the point)
+#    http://localhost:3000/register.html  → Team registration
+#    http://localhost:3000/spectator.html → Big-screen leaderboard
+#    http://localhost:3000/admin.html     → Facilitator admin panel
+#    http://localhost:3000/results.html   → Post-event results & certificates
+#    http://localhost:3000/api/...        → REST API
+# ──────────────────────────────────────────────
+
+services:
+  leaderboard:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      # Uncomment 'platforms' to build a multi-arch image for registries.
+      # For local use, Docker auto-detects the host architecture.
+      # platforms:
+      #   - linux/amd64
+      #   - linux/arm64
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped

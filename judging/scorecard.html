@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Merge — Scorecard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  @page {
+    size: letter;
+    margin: 0.5in;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 24px;
+  }
+
+  @media print {
+    body { background: white; color: #1e293b; padding: 0; }
+    .no-print { display: none; }
+    .card { break-inside: avoid; border: 2px solid #334155; }
+    .card-header { background: #1e293b !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 900;
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: #94a3b8;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .team-input {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .team-input input {
+    font-family: inherit;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    border: none;
+    border-bottom: 3px solid #3b82f6;
+    background: transparent;
+    color: inherit;
+    padding: 8px 16px;
+    width: 300px;
+    outline: none;
+  }
+
+  .phases {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: #1e293b;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: #334155;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .card-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .card-header .max {
+    font-size: 12px;
+    color: #94a3b8;
+  }
+
+  .card-body {
+    padding: 12px 16px;
+  }
+
+  .checklist {
+    list-style: none;
+  }
+
+  .checklist li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 13px;
+    border-bottom: 1px solid #334155;
+  }
+
+  .checklist li:last-child {
+    border-bottom: none;
+  }
+
+  .checklist input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  .checklist .pts {
+    margin-left: auto;
+    font-weight: 600;
+    color: #3b82f6;
+    white-space: nowrap;
+  }
+
+  .score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background: #0f172a;
+    border-top: 1px solid #334155;
+  }
+
+  .score-row label {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .score-row input {
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 700;
+    width: 60px;
+    text-align: center;
+    border: 2px solid #3b82f6;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    padding: 4px;
+  }
+
+  .grand-total {
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+  }
+
+  .grand-total h2 {
+    font-size: 20px;
+    font-weight: 900;
+  }
+
+  .grand-total input {
+    font-family: inherit;
+    font-size: 28px;
+    font-weight: 900;
+    width: 100px;
+    text-align: center;
+    border: 3px solid #f59e0b;
+    border-radius: 8px;
+    background: transparent;
+    color: #f59e0b;
+    padding: 6px;
+  }
+
+  .notes {
+    margin-top: 16px;
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  .notes h3 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    color: #94a3b8;
+  }
+
+  .notes textarea {
+    width: 100%;
+    height: 60px;
+    font-family: inherit;
+    font-size: 13px;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    padding: 8px;
+    resize: vertical;
+  }
+
+  .print-btn {
+    display: block;
+    margin: 24px auto;
+    padding: 12px 32px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+
+  .print-btn:hover { background: #2563eb; }
+</style>
+</head>
+<body>
+
+<h1>🔀 The Merge — Scorecard</h1>
+<p class="subtitle">One per team · Circle completed items · Write score in each box</p>
+
+<div class="team-input">
+  <input type="text" placeholder="Team Name" aria-label="Team Name">
+</div>
+
+<div class="phases">
+  <!-- Phase 1 -->
+  <div class="card">
+    <div class="card-header">
+      <h3>🛟 Phase 1 — Rescue</h3>
+      <span class="max">/ 100 pts</span>
+    </div>
+    <div class="card-body">
+      <ul class="checklist">
+        <li><input type="checkbox"> Server starts clean <span class="pts">15</span></li>
+        <li><input type="checkbox"> Dashboard loads <span class="pts">15</span></li>
+        <li><input type="checkbox"> No var remaining <span class="pts">10</span></li>
+        <li><input type="checkbox"> ES modules (import/export) <span class="pts">10</span></li>
+        <li><input type="checkbox"> moment removed <span class="pts">10</span></li>
+        <li><input type="checkbox"> body-parser removed <span class="pts">10</span></li>
+        <li><input type="checkbox"> lodash removed <span class="pts">10</span></li>
+        <li><input type="checkbox"> Safe error handler <span class="pts">10</span></li>
+        <li><input type="checkbox"> async/await (bonus) <span class="pts">+5</span></li>
+        <li><input type="checkbox"> Input validation (bonus) <span class="pts">+5</span></li>
+      </ul>
+    </div>
+    <div class="score-row">
+      <label>Phase 1 Score</label>
+      <input type="number" min="0" max="110" placeholder="0">
+    </div>
+  </div>
+
+  <!-- Phase 2 -->
+  <div class="card">
+    <div class="card-header">
+      <h3>🐛 Phase 2 — Bug Hunt</h3>
+      <span class="max">/ 150 pts</span>
+    </div>
+    <div class="card-body">
+      <ul class="checklist">
+        <li><input type="checkbox"> Sort descending <span class="pts">15</span></li>
+        <li><input type="checkbox"> All 6 teams visible <span class="pts">15</span></li>
+        <li><input type="checkbox"> GET /teams/:id works <span class="pts">15</span></li>
+        <li><input type="checkbox"> GET /team/:id scores <span class="pts">10</span></li>
+        <li><input type="checkbox"> Type coercion fixed <span class="pts">10</span></li>
+        <li><input type="checkbox"> Max points validated <span class="pts">10</span></li>
+        <li><input type="checkbox"> Correct lastUpdated <span class="pts">10</span></li>
+        <li><input type="checkbox"> Delete bug fixed <span class="pts">10</span></li>
+        <li><input type="checkbox"> Immutable getTeams <span class="pts">10</span></li>
+        <li><input type="checkbox"> Auto-refresh works <span class="pts">15</span></li>
+        <li><input type="checkbox"> Team colors shown <span class="pts">10</span></li>
+        <li><input type="checkbox"> Stack traces hidden <span class="pts">10</span></li>
+      </ul>
+    </div>
+    <div class="score-row">
+      <label>Phase 2 Score</label>
+      <input type="number" min="0" max="180" placeholder="0">
+    </div>
+  </div>
+
+  <!-- Phase 3 -->
+  <div class="card">
+    <div class="card-header">
+      <h3>🚀 Phase 3 — Features</h3>
+      <span class="max">/ 200 pts</span>
+    </div>
+    <div class="card-body">
+      <ul class="checklist">
+        <li><input type="checkbox"> Auto-refresh <span class="pts">20</span></li>
+        <li><input type="checkbox"> Score submission form <span class="pts">20</span></li>
+        <li><input type="checkbox"> Challenge progress <span class="pts">20</span></li>
+        <li><input type="checkbox"> Team colors applied <span class="pts">20</span></li>
+        <li><input type="checkbox"> Responsive layout <span class="pts">20</span></li>
+        <li><input type="checkbox"> Dark mode <span class="pts">30</span></li>
+        <li><input type="checkbox"> Animated scores <span class="pts">30</span></li>
+        <li><input type="checkbox"> Progress bars <span class="pts">30</span></li>
+        <li><input type="checkbox"> Score history <span class="pts">30</span></li>
+        <li><input type="checkbox"> Team profiles <span class="pts">30</span></li>
+        <li><input type="checkbox"> Live animations <span class="pts">40</span></li>
+        <li><input type="checkbox"> Achievements <span class="pts">40</span></li>
+        <li><input type="checkbox"> Countdown timer <span class="pts">40</span></li>
+        <li><input type="checkbox"> Sound effects <span class="pts">40</span></li>
+        <li><input type="checkbox"> Confetti <span class="pts">40</span></li>
+      </ul>
+    </div>
+    <div class="score-row">
+      <label>Phase 3 Score</label>
+      <input type="number" min="0" max="200" placeholder="0">
+    </div>
+  </div>
+
+  <!-- Phase 4 -->
+  <div class="card">
+    <div class="card-header">
+      <h3>🏆 Phase 4 — Final Boss</h3>
+      <span class="max">/ 250 pts</span>
+    </div>
+    <div class="card-body">
+      <ul class="checklist">
+        <li><input type="checkbox"> Demo delivered <span class="pts">—</span></li>
+        <li><input type="checkbox"> Audience vote rank: ___ <span class="pts">/100</span></li>
+        <li><input type="checkbox"> Code readable <span class="pts">15</span></li>
+        <li><input type="checkbox"> No security issues <span class="pts">10</span></li>
+        <li><input type="checkbox"> Error handling <span class="pts">10</span></li>
+        <li><input type="checkbox"> Clean git history <span class="pts">5</span></li>
+        <li><input type="checkbox"> Tests exist <span class="pts">10</span></li>
+        <li><input type="checkbox"> Containerized (bonus) <span class="pts">+30</span></li>
+        <li><input type="checkbox"> Best feature (bonus) <span class="pts">+50</span></li>
+        <li><input type="checkbox"> Helped others (bonus) <span class="pts">+20</span></li>
+      </ul>
+    </div>
+    <div class="score-row">
+      <label>Phase 4 Score</label>
+      <input type="number" min="0" max="350" placeholder="0">
+    </div>
+  </div>
+</div>
+
+<div class="grand-total">
+  <h2>GRAND TOTAL</h2>
+  <input type="number" min="0" max="999" placeholder="0">
+</div>
+
+<div class="notes">
+  <h3>Judge Notes</h3>
+  <textarea placeholder="Standout moments, creative solutions, best Copilot usage..."></textarea>
+</div>
+
+<button class="print-btn no-print" onclick="window.print()">🖨️ Print Scorecard</button>
+
+</body>
+</html>

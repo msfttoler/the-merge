@@ -1,0 +1,16 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build / Runtime
+dist/
+*.log
+
+# Editor
+.vscode/settings.json
+.idea/
+hackathon/starter/node_modules/

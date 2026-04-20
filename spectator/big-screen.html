@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Merge — Leaderboard</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --border: #1f2937;
+    --text: #f1f5f9;
+    --muted: #64748b;
+    --accent: #3b82f6;
+    --gold: #f59e0b;
+    --silver: #94a3b8;
+    --bronze: #d97706;
+    --green: #22c55e;
+    --red: #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* ---- Header ---- */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 48px 16px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(270deg, rgba(59,130,246,0.06), rgba(139,92,246,0.06), rgba(236,72,153,0.06), rgba(59,130,246,0.06));
+    background-size: 600% 100%;
+    animation: header-gradient 20s ease infinite;
+  }
+
+  @keyframes header-gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .event-title {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  .event-title h1 {
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .event-title .subtitle {
+    font-size: 16px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .connection-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+  }
+
+  .connection-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+  }
+
+  .connection-dot.disconnected {
+    background: var(--red);
+    animation: pulse-dot 1s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .phase-badge {
+    padding: 8px 20px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: var(--accent);
+    animation: pulse-border 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-border {
+    0%, 100% { border-color: rgba(59, 130, 246, 0.3); }
+    50% { border-color: rgba(59, 130, 246, 0.8); }
+  }
+
+  .clock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  /* ---- Announcement Banner ---- */
+  .announcement-banner {
+    display: none;
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    padding: 10px 48px;
+    font-weight: 700;
+    font-size: 18px;
+    color: #fff;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+  }
+
+  .announcement-banner.visible { display: block; }
+
+  .announcement-text {
+    display: inline-block;
+    animation: scroll-text 15s linear infinite;
+  }
+
+  @keyframes scroll-text {
+    0% { transform: translateX(60vw); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* ---- Main Grid ---- */
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    height: calc(100vh - 90px);
+    gap: 0;
+  }
+
+  body.has-announcement .main {
+    height: calc(100vh - 90px - 46px);
+  }
+
+  body.has-sponsors .main {
+    height: calc(100vh - 90px - 40px);
+  }
+
+  body.has-announcement.has-sponsors .main {
+    height: calc(100vh - 90px - 46px - 40px);
+  }
+
+  /* ---- Leaderboard ---- */
+  .leaderboard {
+    padding: 24px 48px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .board-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 200px 160px;
+    align-items: center;
+    padding: 16px 24px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    will-change: transform;
+    transition: box-shadow 0.6s ease;
+  }
+
+  .board-row::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    border-radius: 4px 0 0 4px;
+    background: var(--team-color, var(--muted));
+  }
+
+  .board-row.rank-1 {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.02));
+    border-color: rgba(245, 158, 11, 0.2);
+  }
+
+  .board-row.rank-2 {
+    background: linear-gradient(135deg, rgba(148, 163, 184, 0.06), rgba(148, 163, 184, 0.02));
+    border-color: rgba(148, 163, 184, 0.15);
+  }
+
+  .board-row.rank-3 {
+    background: linear-gradient(135deg, rgba(217, 119, 6, 0.06), rgba(217, 119, 6, 0.02));
+    border-color: rgba(217, 119, 6, 0.15);
+  }
+
+  .board-row.score-glow {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.3), inset 0 0 20px rgba(34, 197, 94, 0.05);
+  }
+
+  .rank {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 900;
+    text-align: center;
+  }
+
+  .rank-1 .rank { color: var(--gold); }
+  .rank-2 .rank { color: var(--silver); }
+  .rank-3 .rank { color: var(--bronze); }
+
+  .rank-medal {
+    font-size: 18px;
+    margin-left: 4px;
+  }
+
+  .team-info {
+    padding-left: 16px;
+  }
+
+  .team-name {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .team-members {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .team-motto {
+    font-size: 11px;
+    color: var(--muted);
+    font-style: italic;
+    opacity: 0.6;
+  }
+
+  /* ---- Score + Progress ---- */
+  .score-area {
+    text-align: right;
+    padding-right: 24px;
+  }
+
+  .score-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: -1px;
+  }
+
+  .score-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .progress-bar-container {
+    width: 100%;
+  }
+
+  .progress-track {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--team-color, var(--accent));
+    transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+  }
+
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 20px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+    border-radius: 0 3px 3px 0;
+  }
+
+  .progress-text {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ---- Sidebar ---- */
+  .sidebar {
+    border-left: 1px solid var(--border);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+  }
+
+  .sidebar-section h3 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .phase-card {
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .phase-card.active {
+    border-color: var(--accent);
+    background: rgba(59, 130, 246, 0.08);
+  }
+
+  .phase-card.completed {
+    border-color: var(--green);
+    opacity: 0.7;
+  }
+
+  .phase-name {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .phase-pts {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .phase-status {
+    font-size: 14px;
+  }
+
+  /* ---- Activity Feed ---- */
+  .feed-item {
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    margin-bottom: 6px;
+    font-size: 13px;
+    animation: slide-in 0.4s ease-out;
+  }
+
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .feed-item .feed-team {
+    font-weight: 600;
+  }
+
+  .feed-item .feed-time {
+    font-size: 11px;
+    color: var(--muted);
+    float: right;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .feed-item .feed-detail {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ---- Stats ---- */
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 24px;
+    font-weight: 900;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ---- No-data state ---- */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60%;
+    gap: 16px;
+    color: var(--muted);
+  }
+
+  .empty-state .icon {
+    font-size: 64px;
+    opacity: 0.3;
+  }
+
+  .empty-state p {
+    font-size: 18px;
+    font-weight: 300;
+  }
+
+  /* ---- Countdown ---- */
+  .countdown {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 32px;
+    font-weight: 900;
+    text-align: center;
+    padding: 16px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .countdown.warning {
+    color: var(--gold);
+    border-color: rgba(245, 158, 11, 0.3);
+    animation: pulse-border 1s ease-in-out infinite;
+  }
+
+  .countdown.danger {
+    color: var(--red);
+    border-color: rgba(239, 68, 68, 0.3);
+    animation: pulse-border 0.5s ease-in-out infinite;
+  }
+
+  .countdown-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 4px;
+  }
+
+  /* ---- Confetti Canvas ---- */
+  #confetti-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ---- Winner Celebration Overlay ---- */
+  .winner-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(16px);
+    background: rgba(10, 14, 26, 0.8);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+
+  .winner-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .winner-name {
+    font-size: 96px;
+    font-weight: 900;
+    letter-spacing: -3px;
+    background: linear-gradient(135deg, #f59e0b, #ec4899, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  .winner-subtitle {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .winner-dismiss {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 32px;
+  }
+
+  /* ---- Sponsor Bar ---- */
+  .sponsor-bar {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 6px 48px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    height: 40px;
+    flex-shrink: 0;
+  }
+
+  .sponsor-bar.visible {
+    display: flex;
+  }
+
+  .sponsor-logo {
+    height: 24px;
+    object-fit: contain;
+    opacity: 0.6;
+    transition: opacity 0.3s;
+  }
+
+  .sponsor-fallback {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+
+  /* ---- Instructions Overlay ---- */
+  .instructions-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    font-family: Inter, sans-serif;
+    color: #e2e8f0;
+    cursor: pointer;
+  }
+
+  .instructions-overlay kbd {
+    background: #1e293b;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    display: inline-block;
+    min-width: 32px;
+    text-align: center;
+  }
+
+  .instructions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 32px;
+    text-align: left;
+    max-width: 720px;
+  }
+
+  .instructions-group h4 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .instructions-group div {
+    font-size: 15px;
+    line-height: 2.2;
+  }
+</style>
+</head>
+<body>
+
+<!-- Confetti canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- Winner celebration overlay -->
+<div class="winner-overlay" id="winner-overlay">
+  <div class="winner-name" id="winner-name"></div>
+  <div class="winner-subtitle">🏆 CHAMPIONS</div>
+  <div class="winner-dismiss">Press <kbd style="background:#1e293b;padding:4px 10px;border-radius:4px;font-family:JetBrains Mono">Esc</kbd> to dismiss</div>
+</div>
+
+<!-- Header -->
+<div class="header">
+  <div class="event-title">
+    <h1>The Merge</h1>
+    <span class="subtitle">Build. Break. Ship.</span>
+  </div>
+  <div class="header-right">
+    <div class="connection-status" id="connection-status">
+      <span class="connection-dot" id="connection-dot"></span>
+      <span id="connection-text">Live</span>
+    </div>
+    <div class="phase-badge" id="phase-badge">PHASE 1 — RESCUE</div>
+    <div class="clock" id="clock">--:--:--</div>
+  </div>
+</div>
+
+<!-- Announcement Banner -->
+<div class="announcement-banner" id="announcement-banner">
+  <span class="announcement-text" id="announcement-text"></span>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="leaderboard" id="leaderboard">
+    <div class="empty-state" id="empty-state">
+      <div class="icon">🚀</div>
+      <p>Waiting for scores...</p>
+      <p style="font-size:13px">The hackathon hasn't started yet</p>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <h3>Phase Timer</h3>
+      <div class="countdown" id="countdown">25:00</div>
+      <div class="countdown-label">Time Remaining</div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Phases</h3>
+      <div id="phases-list"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Stats</h3>
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-teams">0</div>
+          <div class="stat-label">Teams</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="stat-label">Total Pts</div>
+        </div>
+      </div>
+      <div class="stats-row" style="margin-top:8px">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-leader">—</div>
+          <div class="stat-label">Leader</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-gap">—</div>
+          <div class="stat-label">Gap</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h3>Activity</h3>
+      <div id="activity-feed"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Sponsor Bar -->
+<div class="sponsor-bar" id="sponsor-bar"></div>
+
+<script>
+// ============================================================
+//  Spectator Mode v2 — Big Screen Leaderboard
+//  The Merge — Build. Break. Ship.
+//  Fetches from the hackathon API and renders in real-time
+// ============================================================
+
+// === CONFIG ===
+
+const API_BASE = window.location.origin;
+const MAX_SCORE = 700;
+const REFRESH_MS = 3000;
+const MEDALS = ['🥇', '🥈', '🥉'];
+const CONFETTI_COLORS = ['#f59e0b', '#3b82f6', '#22c55e', '#ec4899', '#8b5cf6', '#ef4444'];
+
+const SPONSORS = [
+  // { name: 'Acme Corp', url: 'https://example.com/logo.png' },
+];
+
+const PHASES = [
+  { id: 'rescue',   name: 'Phase 1 — Rescue',        pts: 100, duration: 25 },
+  { id: 'debug',    name: 'Phase 2 — Bug Hunt',       pts: 150, duration: 30 },
+  { id: 'features', name: 'Phase 3 — Feature Frenzy', pts: 200, duration: 40 },
+  { id: 'finals',   name: 'Phase 4 — Final Boss',     pts: 250, duration: 30 },
+];
+
+// === STATE ===
+
+const state = {
+  previousRankings: [],
+  previousLeader: null,
+  activityLog: [],
+  currentPhaseIndex: 0,
+  timerSeconds: PHASES[0].duration * 60,
+  timerRunning: false,
+  connected: false,
+  lastFetchTime: 0,
+  fetchInFlight: false,
+  fetchRequestId: 0,
+  announcement: null,
+  winnerVisible: false,
+  teamNodes: new Map(),   // teamId -> DOM element
+  teamScores: new Map(),  // teamId -> displayed score (for animation)
+  hasData: false,
+};
+
+// === DOM REFS ===
+
+const refs = {
+  clock: document.getElementById('clock'),
+  phaseBadge: document.getElementById('phase-badge'),
+  countdown: document.getElementById('countdown'),
+  phasesList: document.getElementById('phases-list'),
+  leaderboard: document.getElementById('leaderboard'),
+  emptyState: document.getElementById('empty-state'),
+  statTeams: document.getElementById('stat-teams'),
+  statTotal: document.getElementById('stat-total'),
+  statLeader: document.getElementById('stat-leader'),
+  statGap: document.getElementById('stat-gap'),
+  activityFeed: document.getElementById('activity-feed'),
+  connectionDot: document.getElementById('connection-dot'),
+  connectionText: document.getElementById('connection-text'),
+  announcementBanner: document.getElementById('announcement-banner'),
+  announcementText: document.getElementById('announcement-text'),
+  winnerOverlay: document.getElementById('winner-overlay'),
+  winnerName: document.getElementById('winner-name'),
+  sponsorBar: document.getElementById('sponsor-bar'),
+  confettiCanvas: document.getElementById('confetti-canvas'),
+};
+
+// === UTILITIES ===
+
+/** Escape HTML to prevent XSS */
+function esc(str) {
+  if (str == null) return '';
+  const div = document.createElement('div');
+  div.appendChild(document.createTextNode(String(str)));
+  return div.innerHTML;
+}
+
+/** Format seconds as MM:SS */
+function fmtTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+}
+
+// === CONFETTI ENGINE ===
+
+const confetti = (() => {
+  const canvas = refs.confettiCanvas;
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  let running = false;
+  let rafId = null;
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  class Particle {
+    constructor(x, y, color, opts = {}) {
+      this.x = x;
+      this.y = y;
+      this.color = color;
+      this.vx = (Math.random() - 0.5) * (opts.spread || 12);
+      this.vy = -(Math.random() * (opts.power || 14) + 4);
+      this.gravity = 0.18 + Math.random() * 0.08;
+      this.drag = 0.98 + Math.random() * 0.015;
+      this.rotation = Math.random() * Math.PI * 2;
+      this.spin = (Math.random() - 0.5) * 0.2;
+      this.opacity = 1;
+      this.fadeRate = 0.003 + Math.random() * 0.004;
+      this.size = opts.size || (3 + Math.random() * 6);
+      // 0=rect, 1=circle, 2=strip
+      this.shape = Math.floor(Math.random() * 3);
+      this.alive = true;
+    }
+
+    update() {
+      this.vy += this.gravity;
+      this.vx *= this.drag;
+      this.vy *= this.drag;
+      this.x += this.vx;
+      this.y += this.vy;
+      this.rotation += this.spin;
+      this.opacity -= this.fadeRate;
+      if (this.opacity <= 0 || this.y > canvas.height + 40) {
+        this.alive = false;
+      }
+    }
+
+    draw(ctx) {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rotation);
+      ctx.globalAlpha = Math.max(0, this.opacity);
+      ctx.fillStyle = this.color;
+      if (this.shape === 0) {
+        ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size * 0.6);
+      } else if (this.shape === 1) {
+        ctx.beginPath();
+        ctx.arc(0, 0, this.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.fillRect(-this.size / 2, -1, this.size, 2.5);
+      }
+      ctx.restore();
+    }
+  }
+
+  function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles = particles.filter(p => p.alive);
+    for (const p of particles) {
+      p.update();
+      p.draw(ctx);
+    }
+    if (particles.length > 0) {
+      rafId = requestAnimationFrame(loop);
+    } else {
+      running = false;
+      rafId = null;
+    }
+  }
+
+  function ensureRunning() {
+    if (!running) {
+      running = true;
+      rafId = requestAnimationFrame(loop);
+    }
+  }
+
+  /** Standard burst — moderate confetti */
+  function burst(originX, originY, count) {
+    count = count || 80;
+    const cx = originX != null ? originX : canvas.width / 2;
+    const cy = originY != null ? originY : canvas.height * 0.3;
+    for (let i = 0; i < count; i++) {
+      const color = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+      particles.push(new Particle(cx + (Math.random() - 0.5) * 200, cy, color));
+    }
+    ensureRunning();
+  }
+
+  /** Massive celebration burst — multiple origin points, more particles */
+  function celebrate() {
+    const w = canvas.width;
+    const h = canvas.height;
+    const origins = [
+      [w * 0.2, h * 0.25],
+      [w * 0.5, h * 0.15],
+      [w * 0.8, h * 0.25],
+      [w * 0.35, h * 0.4],
+      [w * 0.65, h * 0.4],
+    ];
+    for (const [ox, oy] of origins) {
+      for (let i = 0; i < 60; i++) {
+        const color = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+        particles.push(new Particle(ox, oy, color, { spread: 18, power: 18, size: 4 + Math.random() * 8 }));
+      }
+    }
+    ensureRunning();
+    // Fire additional waves
+    setTimeout(() => {
+      for (const [ox, oy] of origins) {
+        for (let i = 0; i < 40; i++) {
+          const color = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+          particles.push(new Particle(ox, oy, color, { spread: 14, power: 16 }));
+        }
+      }
+      ensureRunning();
+    }, 600);
+  }
+
+  return { burst, celebrate };
+})();
+
+// === RENDERING ===
+
+function updateClock() {
+  const now = new Date();
+  refs.clock.textContent = now.toLocaleTimeString('en-US', {
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+  });
+}
+
+function renderPhases() {
+  refs.phasesList.innerHTML = PHASES.map((p, i) => {
+    const cls = i === state.currentPhaseIndex ? 'active' : i < state.currentPhaseIndex ? 'completed' : '';
+    const icon = i < state.currentPhaseIndex ? '✅' : i === state.currentPhaseIndex ? '▶️' : '⏳';
+    return `<div class="phase-card ${cls}">
+      <div>
+        <div class="phase-name">${esc(p.name)}</div>
+        <div class="phase-pts">${p.pts} pts</div>
+      </div>
+      <div class="phase-status">${icon}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderTimer() {
+  refs.countdown.textContent = fmtTime(state.timerSeconds);
+  refs.countdown.classList.remove('warning', 'danger');
+  if (state.timerSeconds <= 60) refs.countdown.classList.add('danger');
+  else if (state.timerSeconds <= 300) refs.countdown.classList.add('warning');
+}
+
+function updateConnectionStatus() {
+  if (state.connected) {
+    refs.connectionDot.classList.remove('disconnected');
+    const ago = Math.round((Date.now() - state.lastFetchTime) / 1000);
+    refs.connectionText.textContent = ago < 6 ? 'Live' : `Updated ${ago}s ago`;
+  } else {
+    refs.connectionDot.classList.add('disconnected');
+    refs.connectionText.textContent = 'Disconnected';
+  }
+}
+
+// === ANIMATIONS ===
+
+/** Animate a score value counting from oldVal to newVal */
+function animateScore(el, oldVal, newVal) {
+  if (oldVal === newVal) return;
+  const duration = 600;
+  const start = performance.now();
+  const diff = newVal - oldVal;
+
+  function step(ts) {
+    const elapsed = ts - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);  // ease-out cubic
+    const current = Math.round(oldVal + diff * eased);
+    el.textContent = current;
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/** FLIP animation: smoothly move rows to new positions */
+function flipAnimate(container) {
+  const rows = Array.from(container.querySelectorAll('.board-row'));
+  if (rows.length === 0) return;
+
+  // FIRST: record current positions
+  const firstRects = new Map();
+  for (const row of rows) {
+    firstRects.set(row, row.getBoundingClientRect());
+  }
+
+  // LAST: the rows are already in their new DOM order (re-appended)
+  // Force layout
+  void container.offsetHeight;
+
+  // INVERT + PLAY
+  for (const row of rows) {
+    const first = firstRects.get(row);
+    if (!first) continue;
+    const last = row.getBoundingClientRect();
+    const dy = first.top - last.top;
+    if (Math.abs(dy) < 1) continue;
+
+    row.style.transition = 'none';
+    row.style.transform = `translateY(${dy}px)`;
+    void row.offsetHeight;  // force reflow
+    row.style.transition = 'transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)';
+    row.style.transform = '';
+  }
+}
+
+// === KEYED DOM RENDERING ===
+
+function getOrCreateRow(teamId) {
+  if (state.teamNodes.has(teamId)) {
+    return state.teamNodes.get(teamId);
+  }
+  const row = document.createElement('div');
+  row.className = 'board-row';
+  row.dataset.teamId = teamId;
+
+  // Build internal structure once
+  row.innerHTML = `
+    <div class="rank"></div>
+    <div class="team-info">
+      <div class="team-name"></div>
+      <div class="team-members"></div>
+      <div class="team-motto"></div>
+    </div>
+    <div class="score-area">
+      <div class="score-value">0</div>
+      <div class="score-label">Points</div>
+    </div>
+    <div class="progress-bar-container">
+      <div class="progress-track">
+        <div class="progress-fill"></div>
+      </div>
+      <div class="progress-text"></div>
+    </div>`;
+
+  state.teamNodes.set(teamId, row);
+  return row;
+}
+
+function updateRow(row, entry, rank) {
+  const teamId = entry.team.id;
+  const color = entry.team.color || 'var(--muted)';
+  const pct = Math.min((entry.totalScore / MAX_SCORE) * 100, 100);
+  const medal = rank <= 3 ? MEDALS[rank - 1] : '';
+
+  // Update rank classes
+  row.className = 'board-row';
+  if (rank <= 3) row.classList.add('rank-' + rank);
+  row.style.setProperty('--team-color', color);
+
+  // Rank
+  const rankEl = row.querySelector('.rank');
+  const rankHtml = esc(String(rank)) + (medal ? `<span class="rank-medal">${medal}</span>` : '');
+  if (rankEl.innerHTML !== rankHtml) rankEl.innerHTML = rankHtml;
+
+  // Team info
+  const nameEl = row.querySelector('.team-name');
+  const escaped = esc(entry.team.name);
+  if (nameEl.textContent !== entry.team.name) nameEl.textContent = entry.team.name;
+
+  const membersEl = row.querySelector('.team-members');
+  const membersText = (entry.team.members || []).map(m => esc(m)).join(', ');
+  if (membersEl.innerHTML !== membersText) membersEl.innerHTML = membersText;
+
+  const mottoEl = row.querySelector('.team-motto');
+  const mottoText = entry.team.motto ? `"${esc(entry.team.motto)}"` : '';
+  if (mottoEl.innerHTML !== mottoText) mottoEl.innerHTML = mottoText;
+
+  // Score with counting animation
+  const scoreEl = row.querySelector('.score-value');
+  const oldScore = state.teamScores.get(teamId) || 0;
+  const newScore = entry.totalScore;
+  if (oldScore !== newScore) {
+    animateScore(scoreEl, oldScore, newScore);
+    state.teamScores.set(teamId, newScore);
+
+    // Glow effect on score increase
+    if (oldScore > 0 || newScore > 0) {
+      row.classList.add('score-glow');
+      setTimeout(() => row.classList.remove('score-glow'), 1200);
+    }
+  }
+
+  // Progress bar
+  const fill = row.querySelector('.progress-fill');
+  fill.style.width = pct + '%';
+  fill.style.background = color;
+
+  const progressText = row.querySelector('.progress-text');
+  progressText.textContent = Math.round(pct) + '% of ' + MAX_SCORE;
+}
+
+function renderLeaderboard(data) {
+  if (!data || data.length === 0) return;
+
+  // Sort descending by totalScore
+  data.sort((a, b) => b.totalScore - a.totalScore);
+
+  // Hide empty state
+  if (!state.hasData) {
+    state.hasData = true;
+    if (refs.emptyState) refs.emptyState.style.display = 'none';
+  }
+
+  // Detect score changes for activity feed
+  data.forEach((entry) => {
+    const prev = state.previousRankings.find(p => p.team.id === entry.team.id);
+    if (prev && prev.totalScore !== entry.totalScore) {
+      const delta = entry.totalScore - prev.totalScore;
+      addActivity(entry.team.name, `+${delta} pts`, entry.team.color);
+    }
+  });
+
+  // Detect leader change
+  const currentLeader = data[0]?.team.id;
+  if (state.previousLeader && currentLeader !== state.previousLeader && data[0]?.totalScore > 0) {
+    confetti.burst();
+    addActivity(data[0].team.name, '👑 TAKES THE LEAD!', data[0].team.color);
+  }
+  state.previousLeader = currentLeader;
+
+  // Update stats
+  refs.statTeams.textContent = data.length;
+  const totalPts = data.reduce((sum, e) => sum + e.totalScore, 0);
+  refs.statTotal.textContent = totalPts;
+
+  if (data[0]?.totalScore > 0) {
+    const leaderName = data[0].team.name.length > 8
+      ? data[0].team.name.substring(0, 8) + '…'
+      : data[0].team.name;
+    refs.statLeader.textContent = leaderName;
+    refs.statLeader.style.fontSize = '16px';
+  }
+
+  if (data.length >= 2 && data[0].totalScore > 0) {
+    const gap = data[0].totalScore - data[1].totalScore;
+    refs.statGap.textContent = gap === 0 ? 'TIE' : `+${gap}`;
+  }
+
+  // Keyed DOM update with FLIP animation
+  const container = refs.leaderboard;
+
+  // Ensure all rows exist and are updated
+  const activeIds = new Set();
+  data.forEach((entry, index) => {
+    const teamId = entry.team.id;
+    activeIds.add(teamId);
+    const row = getOrCreateRow(teamId);
+    updateRow(row, entry, index + 1);
+  });
+
+  // Remove rows for teams no longer present
+  for (const [id, node] of state.teamNodes) {
+    if (!activeIds.has(id)) {
+      if (node.parentNode) node.parentNode.removeChild(node);
+      state.teamNodes.delete(id);
+      state.teamScores.delete(id);
+    }
+  }
+
+  // Check if order changed for FLIP
+  const currentChildren = Array.from(container.querySelectorAll('.board-row'));
+  const desiredOrder = data.map(e => state.teamNodes.get(e.team.id));
+
+  const orderChanged = desiredOrder.length !== currentChildren.length ||
+    desiredOrder.some((node, i) => currentChildren[i] !== node);
+
+  if (orderChanged) {
+    // Record FIRST positions
+    const firstRects = new Map();
+    for (const row of currentChildren) {
+      firstRects.set(row, row.getBoundingClientRect());
+    }
+
+    // Re-append in new order (moves without removing)
+    for (const node of desiredOrder) {
+      container.appendChild(node);
+    }
+
+    // FLIP: Invert + Play
+    void container.offsetHeight;  // force layout
+    for (const node of desiredOrder) {
+      const first = firstRects.get(node);
+      if (!first) continue;
+      const last = node.getBoundingClientRect();
+      const dy = first.top - last.top;
+      if (Math.abs(dy) < 1) continue;
+
+      node.style.transition = 'none';
+      node.style.transform = `translateY(${dy}px)`;
+      void node.offsetHeight;
+      node.style.transition = 'transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)';
+      node.style.transform = '';
+    }
+  } else {
+    // Just ensure they're in the DOM
+    for (const node of desiredOrder) {
+      if (!node.parentNode) container.appendChild(node);
+    }
+  }
+
+  state.previousRankings = JSON.parse(JSON.stringify(data));
+}
+
+// === ACTIVITY FEED ===
+
+function addActivity(team, detail, color) {
+  const now = new Date();
+  const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  state.activityLog.unshift({ team, detail, time, color });
+  if (state.activityLog.length > 8) state.activityLog.pop();
+  renderActivity();
+}
+
+function renderActivity() {
+  refs.activityFeed.innerHTML = state.activityLog.map(item =>
+    `<div class="feed-item">
+      <span class="feed-time">${esc(item.time)}</span>
+      <span class="feed-team" style="color: ${esc(item.color)}">${esc(item.team)}</span>
+      <div class="feed-detail">${esc(item.detail)}</div>
+    </div>`
+  ).join('');
+}
+
+// === WINNER CELEBRATION ===
+
+function showWinner() {
+  if (state.previousRankings.length === 0) return;
+  const winner = state.previousRankings[0];
+  if (!winner || !winner.team) return;
+
+  refs.winnerName.textContent = winner.team.name;
+  // Use team color as accent for the gradient
+  const c = winner.team.color || '#f59e0b';
+  refs.winnerName.style.background = `linear-gradient(135deg, ${c}, #ec4899, #8b5cf6)`;
+  refs.winnerName.style.webkitBackgroundClip = 'text';
+  refs.winnerName.style.webkitTextFillColor = 'transparent';
+  refs.winnerName.style.backgroundClip = 'text';
+
+  refs.winnerOverlay.classList.add('visible');
+  state.winnerVisible = true;
+
+  // Massive confetti
+  confetti.celebrate();
+}
+
+function hideWinner() {
+  refs.winnerOverlay.classList.remove('visible');
+  state.winnerVisible = false;
+}
+
+// === ANNOUNCEMENTS ===
+
+function showAnnouncementPrompt() {
+  const msg = prompt('Enter announcement message:');
+  if (msg && msg.trim()) {
+    state.announcement = msg.trim();
+    refs.announcementText.textContent = state.announcement;
+    refs.announcementBanner.classList.add('visible');
+    document.body.classList.add('has-announcement');
+    // Reset animation
+    refs.announcementText.style.animation = 'none';
+    void refs.announcementText.offsetHeight;
+    refs.announcementText.style.animation = '';
+  }
+}
+
+function hideAnnouncement() {
+  state.announcement = null;
+  refs.announcementBanner.classList.remove('visible');
+  document.body.classList.remove('has-announcement');
+}
+
+// === DATA FETCHING ===
+
+async function fetchLeaderboard() {
+  if (state.fetchInFlight) return;
+  state.fetchInFlight = true;
+  const requestId = ++state.fetchRequestId;
+
+  try {
+    const res = await fetch(API_BASE + '/api/leaderboard');
+    // Discard stale response
+    if (requestId !== state.fetchRequestId) return;
+    if (!res.ok) throw new Error('API error ' + res.status);
+    const data = await res.json();
+    // Double-check staleness after JSON parse
+    if (requestId !== state.fetchRequestId) return;
+
+    state.connected = true;
+    state.lastFetchTime = Date.now();
+    renderLeaderboard(data);
+  } catch {
+    if (requestId === state.fetchRequestId) {
+      state.connected = false;
+    }
+  } finally {
+    if (requestId === state.fetchRequestId) {
+      state.fetchInFlight = false;
+    }
+  }
+}
+
+// === KEYBOARD CONTROLS ===
+
+const hotkeys = [
+  {
+    keys: [' ', 'Enter'],
+    desc: 'Start / pause timer',
+    handler(e) {
+      e.preventDefault();
+      state.timerRunning = !state.timerRunning;
+    },
+  },
+  {
+    keys: ['ArrowRight', 'N', 'n'],
+    desc: 'Next phase',
+    handler() {
+      state.currentPhaseIndex = Math.min(state.currentPhaseIndex + 1, PHASES.length - 1);
+      state.timerSeconds = PHASES[state.currentPhaseIndex].duration * 60;
+      state.timerRunning = false;
+      refs.phaseBadge.textContent = PHASES[state.currentPhaseIndex].name.toUpperCase();
+      renderPhases();
+      renderTimer();
+    },
+  },
+  {
+    keys: ['ArrowLeft', 'P', 'p'],
+    desc: 'Previous phase',
+    handler() {
+      state.currentPhaseIndex = Math.max(state.currentPhaseIndex - 1, 0);
+      state.timerSeconds = PHASES[state.currentPhaseIndex].duration * 60;
+      state.timerRunning = false;
+      refs.phaseBadge.textContent = PHASES[state.currentPhaseIndex].name.toUpperCase();
+      renderPhases();
+      renderTimer();
+    },
+  },
+  {
+    keys: ['r', 'R'],
+    shiftRequired: false,
+    desc: 'Reset timer',
+    handler() {
+      state.timerSeconds = PHASES[state.currentPhaseIndex].duration * 60;
+      state.timerRunning = false;
+      renderTimer();
+    },
+  },
+  {
+    keys: ['f', 'F'],
+    shiftRequired: false,
+    desc: 'Toggle fullscreen',
+    handler() {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      } else {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    },
+  },
+  {
+    keys: ['W'],
+    shiftRequired: true,
+    desc: 'Winner celebration',
+    handler() {
+      if (state.winnerVisible) {
+        hideWinner();
+      } else {
+        showWinner();
+      }
+    },
+  },
+  {
+    keys: ['A'],
+    shiftRequired: true,
+    desc: 'Announcement banner',
+    handler() {
+      showAnnouncementPrompt();
+    },
+  },
+  {
+    keys: ['Escape'],
+    desc: 'Dismiss overlays',
+    handler() {
+      if (state.winnerVisible) hideWinner();
+      else if (state.announcement) hideAnnouncement();
+    },
+  },
+];
+
+document.addEventListener('keydown', (e) => {
+  // Don't capture if in a prompt/dialog (browser handles that)
+  for (const hk of hotkeys) {
+    if (!hk.keys.includes(e.key)) continue;
+    if (hk.shiftRequired === true && !e.shiftKey) continue;
+    if (hk.shiftRequired === false && e.shiftKey) continue;
+    hk.handler(e);
+    return;
+  }
+});
+
+// === SPONSOR BAR ===
+
+function initSponsors() {
+  if (SPONSORS.length === 0) return;
+  document.body.classList.add('has-sponsors');
+  refs.sponsorBar.classList.add('visible');
+  refs.sponsorBar.innerHTML = SPONSORS.map(s => {
+    if (s.url) {
+      return `<img class="sponsor-logo" src="${esc(s.url)}" alt="${esc(s.name)}"
+                   onerror="this.outerHTML='<span class=\\'sponsor-fallback\\'>${esc(s.name)}</span>'">`;
+    }
+    return `<span class="sponsor-fallback">${esc(s.name)}</span>`;
+  }).join('');
+}
+
+// === INSTRUCTIONS OVERLAY ===
+
+function showInstructions() {
+  const overlay = document.createElement('div');
+  overlay.className = 'instructions-overlay';
+  overlay.innerHTML = `
+    <div style="text-align:center; max-width: 780px; padding: 40px;">
+      <h2 style="font-size:32px; font-weight:900; margin-bottom:32px;
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        Spectator Mode
+      </h2>
+      <div class="instructions-grid">
+        <div class="instructions-group">
+          <h4>Timer</h4>
+          <div><kbd>Space</kbd> / <kbd>Enter</kbd> Start / Pause</div>
+          <div><kbd>R</kbd> Reset timer</div>
+        </div>
+        <div class="instructions-group">
+          <h4>Phases</h4>
+          <div><kbd>→</kbd> / <kbd>N</kbd> Next phase</div>
+          <div><kbd>←</kbd> / <kbd>P</kbd> Previous phase</div>
+        </div>
+        <div class="instructions-group">
+          <h4>Operator</h4>
+          <div><kbd>F</kbd> Fullscreen</div>
+          <div><kbd>Shift+W</kbd> Winner screen</div>
+          <div><kbd>Shift+A</kbd> Announcement</div>
+          <div><kbd>Esc</kbd> Dismiss overlay</div>
+        </div>
+      </div>
+      <p style="margin-top:32px; color:#64748b; font-size:14px">
+        Click anywhere or press any key to dismiss
+      </p>
+    </div>
+  `;
+
+  function dismiss() {
+    if (overlay.parentNode) overlay.remove();
+    document.removeEventListener('keydown', onKey);
+  }
+
+  function onKey() { dismiss(); }
+
+  overlay.addEventListener('click', dismiss);
+  document.addEventListener('keydown', onKey, { once: true });
+  document.body.appendChild(overlay);
+
+  // Auto-dismiss after 8s
+  setTimeout(dismiss, 8000);
+}
+
+// === INIT ===
+
+// Clock tick
+setInterval(updateClock, 1000);
+updateClock();
+
+// Timer tick
+setInterval(() => {
+  if (!state.timerRunning) return;
+  state.timerSeconds--;
+  if (state.timerSeconds < 0) {
+    state.timerSeconds = 0;
+    state.timerRunning = false;
+  }
+  renderTimer();
+}, 1000);
+
+// Connection status tick
+setInterval(updateConnectionStatus, 1000);
+
+// Initial renders
+renderPhases();
+renderTimer();
+initSponsors();
+
+// Data polling
+fetchLeaderboard();
+setInterval(fetchLeaderboard, REFRESH_MS);
+
+// Show instructions on load
+showInstructions();
+</script>
+</body>
+</html>

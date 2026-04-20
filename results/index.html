@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Merge — Final Results</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface-2: #1a2236;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent: #6366f1;
+    --accent-glow: rgba(99, 102, 241, 0.3);
+    --gold: #fbbf24;
+    --gold-glow: rgba(251, 191, 36, 0.25);
+    --silver: #94a3b8;
+    --silver-glow: rgba(148, 163, 184, 0.2);
+    --bronze: #d97706;
+    --bronze-glow: rgba(217, 119, 6, 0.2);
+    --success: #34d399;
+    --danger: #f87171;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* Header */
+  .hero {
+    text-align: center;
+    padding: 4rem 2rem 3rem;
+    background: linear-gradient(180deg, rgba(99,102,241,0.08) 0%, transparent 100%);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero h1 {
+    font-size: 2.8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #818cf8, #6366f1, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+    position: relative;
+  }
+  .hero .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+  }
+  .hero .event-date {
+    margin-top: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+  }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* Sections */
+  .section { margin-bottom: 3rem; }
+  .section-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-title .icon { font-size: 1.3rem; }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  /* Loading & Error */
+  .loading-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-muted);
+  }
+  .loading-state .spinner {
+    display: inline-block;
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 1rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--danger);
+  }
+  .error-state button {
+    margin-top: 1rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  /* ── Podium ── */
+  .podium-wrapper { display: flex; justify-content: center; align-items: flex-end; gap: 1rem; margin-bottom: 2rem; }
+  .podium-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 220px;
+    transition: transform 0.3s;
+  }
+  .podium-slot:hover { transform: translateY(-4px); }
+  .podium-info {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px 12px 0 0;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    width: 100%;
+  }
+  .podium-rank {
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+  .podium-crown { font-size: 1.8rem; display: block; margin-bottom: 0.25rem; }
+  .podium-team-name { font-weight: 700; font-size: 1rem; margin-bottom: 0.25rem; word-break: break-word; }
+  .podium-members { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+  .podium-score { font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; font-weight: 700; }
+  .podium-bar { width: 100%; border-radius: 0 0 12px 12px; }
+  .podium-slot.gold .podium-info { border-color: var(--gold); box-shadow: 0 0 24px var(--gold-glow); }
+  .podium-slot.gold .podium-rank { color: var(--gold); }
+  .podium-slot.gold .podium-bar { background: linear-gradient(180deg, var(--gold), #b45309); height: 120px; }
+  .podium-slot.gold .podium-score { color: var(--gold); }
+  .podium-slot.silver .podium-info { border-color: var(--silver); box-shadow: 0 0 20px var(--silver-glow); }
+  .podium-slot.silver .podium-rank { color: var(--silver); }
+  .podium-slot.silver .podium-bar { background: linear-gradient(180deg, var(--silver), #475569); height: 90px; }
+  .podium-slot.silver .podium-score { color: var(--silver); }
+  .podium-slot.bronze .podium-info { border-color: var(--bronze); box-shadow: 0 0 20px var(--bronze-glow); }
+  .podium-slot.bronze .podium-rank { color: var(--bronze); }
+  .podium-slot.bronze .podium-bar { background: linear-gradient(180deg, var(--bronze), #78350f); height: 70px; }
+  .podium-slot.bronze .podium-score { color: var(--bronze); }
+
+  /* ── Standings table ── */
+  .standings-table { width: 100%; border-collapse: collapse; }
+  .standings-table th {
+    text-align: left;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .standings-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .standings-table tr:last-child td { border-bottom: none; }
+  .standings-table tr:hover { background: rgba(99,102,241,0.04); }
+  .rank-cell { font-family: 'JetBrains Mono', monospace; font-weight: 700; width: 60px; }
+  .rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+  }
+  .rank-badge.gold { background: var(--gold-glow); color: var(--gold); }
+  .rank-badge.silver { background: var(--silver-glow); color: var(--silver); }
+  .rank-badge.bronze { background: var(--bronze-glow); color: var(--bronze); }
+  .rank-badge.default { background: rgba(99,102,241,0.1); color: var(--text-muted); }
+  .team-color-dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+  }
+  .team-name-cell { font-weight: 600; }
+  .members-cell { font-size: 0.8rem; color: var(--text-muted); }
+  .score-cell { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1rem; }
+  .phase-scores { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+  .phase-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    background: rgba(99,102,241,0.1);
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  /* ── Stats grid ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+  .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+  /* ── Buttons ── */
+  .btn-row { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn:hover { border-color: var(--accent); background: var(--surface-2); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #4f46e5; }
+  .btn .icon { font-size: 1rem; }
+  .btn-success { background: #059669; border-color: #059669; color: #fff; }
+  .btn-success:hover { background: #047857; }
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--success);
+    color: #000;
+    padding: 0.65rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  /* ── Shareable summary ── */
+  .summary-box {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    color: var(--text);
+    line-height: 1.5;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  /* ── Certificates ── */
+  .certificate-controls { margin-bottom: 1.5rem; }
+  #certificates-container .certificate {
+    background: #fff;
+    color: #111;
+    border-radius: 4px;
+    padding: 3rem 3.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 3px solid #6366f1;
+  }
+  .certificate .cert-border-inner {
+    position: absolute;
+    inset: 8px;
+    border: 1px solid #c7d2fe;
+    border-radius: 2px;
+    pointer-events: none;
+  }
+  .certificate .cert-header {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #6366f1, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.25rem;
+  }
+  .certificate .cert-tagline {
+    font-size: 0.7rem;
+    color: #6366f1;
+    letter-spacing: 0.1em;
+    margin-bottom: 1.5rem;
+  }
+  .certificate .cert-title {
+    font-size: 1.8rem;
+    font-weight: 300;
+    color: #1e293b;
+    margin-bottom: 1.25rem;
+    letter-spacing: 0.05em;
+  }
+  .certificate .cert-designation {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+  .certificate .cert-body {
+    font-size: 1rem;
+    color: #334155;
+    line-height: 1.8;
+    max-width: 500px;
+  }
+  .certificate .cert-body .member-name {
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: #111;
+    display: block;
+    margin: 0.5rem 0;
+  }
+  .certificate .cert-body .team-ref {
+    font-weight: 600;
+    color: #4f46e5;
+  }
+  .certificate .cert-details {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: #6366f1;
+    margin-top: 1rem;
+    font-weight: 600;
+  }
+  .certificate .cert-footer {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+    max-width: 500px;
+  }
+  .certificate .cert-footer .sig-block {
+    text-align: center;
+  }
+  .certificate .cert-footer .sig-line {
+    width: 160px;
+    border-bottom: 1px solid #94a3b8;
+    margin-bottom: 0.35rem;
+    height: 40px;
+  }
+  .certificate .cert-footer .sig-label {
+    font-size: 0.65rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── Nav tabs ── */
+  .tab-nav {
+    display: flex;
+    gap: 0.25rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+    overflow-x: auto;
+  }
+  .tab-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    background: transparent;
+    color: var(--text-muted);
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── Print styles ── */
+  @media print {
+    body { background: #fff; color: #111; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .hero, .tab-nav, .btn-row, .certificate-controls, .toast,
+    .no-print, #tab-export .btn-row, #tab-share, #tab-stats { display: none !important; }
+
+    .container { max-width: 100%; padding: 0; }
+    .tab-panel { display: block !important; }
+
+    /* Standings print */
+    #tab-standings { display: block !important; }
+    .podium-wrapper { display: none; }
+    .card { border: 1px solid #ddd; box-shadow: none; background: #fff; }
+    .standings-table th { color: #555; }
+    .standings-table td { color: #111; border-color: #ddd; }
+    .rank-badge { background: #f3f4f6 !important; color: #111 !important; }
+    .team-color-dot { print-color-adjust: exact; }
+    .phase-chip { background: #f3f4f6 !important; color: #555 !important; }
+    .score-cell { color: #111; }
+
+    /* Certificates print */
+    #tab-certificates { display: block !important; }
+    #certificates-container .certificate {
+      page-break-after: always;
+      page-break-inside: avoid;
+      margin: 0;
+      border-radius: 0;
+      min-height: 90vh;
+      border: 3px solid #6366f1 !important;
+    }
+    #certificates-container .certificate:last-child { page-break-after: auto; }
+  }
+
+  @media (max-width: 700px) {
+    .podium-wrapper { flex-direction: column; align-items: center; }
+    .podium-slot { width: 90%; }
+    .podium-bar { height: 20px !important; }
+    .hero h1 { font-size: 1.8rem; }
+    .standings-table { font-size: 0.8rem; }
+    .standings-table th, .standings-table td { padding: 0.5rem; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>🔀 The Merge — Final Results</h1>
+  <p class="subtitle">Build. Break. Ship.</p>
+  <p class="event-date" id="event-date"></p>
+</header>
+
+<div class="container">
+  <div id="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading final results…</p>
+  </div>
+
+  <div id="error" class="error-state" style="display:none;">
+    <p id="error-msg">Failed to load results.</p>
+    <button onclick="loadData()">Retry</button>
+  </div>
+
+  <div id="content" style="display:none;">
+    <nav class="tab-nav no-print">
+      <button class="tab-btn active" data-tab="tab-standings">🏆 Standings</button>
+      <button class="tab-btn" data-tab="tab-stats">📊 Statistics</button>
+      <button class="tab-btn" data-tab="tab-export">💾 Export</button>
+      <button class="tab-btn" data-tab="tab-certificates">📜 Certificates</button>
+      <button class="tab-btn" data-tab="tab-share">📋 Share</button>
+    </nav>
+
+    <!-- ── Standings ── -->
+    <div id="tab-standings" class="tab-panel active">
+      <div class="section">
+        <div id="podium" class="podium-wrapper"></div>
+      </div>
+      <div class="section">
+        <h2 class="section-title"><span class="icon">📋</span> Full Standings</h2>
+        <div class="card" style="padding:0; overflow-x:auto;">
+          <table class="standings-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Team</th>
+                <th>Members</th>
+                <th>Score</th>
+                <th>Phase Breakdown</th>
+              </tr>
+            </thead>
+            <tbody id="standings-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Statistics ── -->
+    <div id="tab-stats" class="tab-panel">
+      <div class="section">
+        <h2 class="section-title"><span class="icon">📊</span> Event Statistics</h2>
+        <div class="stats-grid" id="stats-grid"></div>
+      </div>
+    </div>
+
+    <!-- ── Export ── -->
+    <div id="tab-export" class="tab-panel">
+      <div class="section">
+        <h2 class="section-title"><span class="icon">💾</span> Export Results</h2>
+        <div class="btn-row">
+          <button class="btn" onclick="exportJSON()"><span class="icon">📄</span> Download JSON</button>
+          <button class="btn" onclick="exportCSV()"><span class="icon">📊</span> Download CSV</button>
+          <button class="btn" onclick="window.print()"><span class="icon">🖨️</span> Print Standings</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Certificates ── -->
+    <div id="tab-certificates" class="tab-panel">
+      <div class="section">
+        <h2 class="section-title no-print"><span class="icon">📜</span> Certificates</h2>
+        <div class="certificate-controls btn-row">
+          <button class="btn btn-primary" onclick="generateCertificates()"><span class="icon">✨</span> Generate All Certificates</button>
+          <button class="btn" onclick="window.print()" id="btn-print-certs" style="display:none;"><span class="icon">🖨️</span> Print Certificates</button>
+        </div>
+        <div id="certificates-container"></div>
+      </div>
+    </div>
+
+    <!-- ── Share ── -->
+    <div id="tab-share" class="tab-panel">
+      <div class="section">
+        <h2 class="section-title"><span class="icon">📋</span> Shareable Summary</h2>
+        <div class="summary-box" id="summary-box"></div>
+        <div class="btn-row" style="margin-top:1rem;">
+          <button class="btn btn-success" onclick="copySummary()"><span class="icon">📋</span> Copy to Clipboard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const API = window.location.origin;
+  let leaderboardData = [];
+  let challengesData = [];
+
+  // ── Helpers ──
+  function esc(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function downloadFile(filename, content, mime) {
+    const blob = new Blob([content], { type: mime });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function formatNumber(n) {
+    return n.toLocaleString();
+  }
+
+  // ── Tabs ──
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ── Date ──
+  document.getElementById('event-date').textContent = new Date().toLocaleDateString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
+
+  // ── Load Data ──
+  async function loadData() {
+    document.getElementById('loading').style.display = '';
+    document.getElementById('error').style.display = 'none';
+    document.getElementById('content').style.display = 'none';
+
+    try {
+      const [lbRes, chRes] = await Promise.all([
+        fetch(API + '/api/leaderboard'),
+        fetch(API + '/api/leaderboard/challenges')
+      ]);
+
+      if (!lbRes.ok || !chRes.ok) throw new Error('API returned ' + lbRes.status);
+
+      leaderboardData = await lbRes.json();
+      challengesData = await chRes.json();
+
+      // Sort descending (fix API bug)
+      leaderboardData.sort((a, b) => b.totalScore - a.totalScore);
+
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('content').style.display = '';
+
+      renderPodium();
+      renderStandings();
+      renderStats();
+      renderSummary();
+    } catch (err) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error').style.display = '';
+      document.getElementById('error-msg').textContent = 'Failed to load results: ' + err.message;
+    }
+  }
+
+  // ── Podium ──
+  function renderPodium() {
+    const el = document.getElementById('podium');
+    if (leaderboardData.length < 1) { el.innerHTML = ''; return; }
+
+    const slots = [];
+    const order = leaderboardData.length >= 3 ? [1, 0, 2] : leaderboardData.map((_, i) => i);
+    const classes = ['gold', 'silver', 'bronze'];
+    const icons = ['👑', '🥈', '🥉'];
+
+    order.forEach(idx => {
+      const entry = leaderboardData[idx];
+      if (!entry) return;
+      const rank = idx + 1;
+      const cls = classes[idx] || '';
+      const crown = idx === 0 ? `<span class="podium-crown">${icons[0]}</span>` : '';
+      const members = (entry.team.members || []).map(m => esc(m)).join(', ');
+
+      slots.push(`
+        <div class="podium-slot ${cls}">
+          <div class="podium-info">
+            ${crown}
+            <div class="podium-rank">${icons[idx] || '#' + rank}</div>
+            <div class="podium-team-name" style="color:${esc(entry.team.color || '#e2e8f0')}">${esc(entry.team.name)}</div>
+            <div class="podium-members">${members || '—'}</div>
+            <div class="podium-score">${formatNumber(entry.totalScore)} pts</div>
+          </div>
+          <div class="podium-bar"></div>
+        </div>
+      `);
+    });
+
+    el.innerHTML = slots.join('');
+  }
+
+  // ── Standings ──
+  function renderStandings() {
+    const tbody = document.getElementById('standings-body');
+    const rows = leaderboardData.map((entry, idx) => {
+      const rank = idx + 1;
+      let badgeClass = 'default';
+      if (rank === 1) badgeClass = 'gold';
+      else if (rank === 2) badgeClass = 'silver';
+      else if (rank === 3) badgeClass = 'bronze';
+
+      const members = (entry.team.members || []).map(m => esc(m)).join(', ');
+      const color = esc(entry.team.color || '#6366f1');
+
+      // Phase breakdown — use challengesCompleted or build from challenges
+      const phases = challengesData.map(ch => {
+        return `<span class="phase-chip">${esc(ch.name)}</span>`;
+      }).join('');
+
+      const winner = rank === 1 ? ' 👑' : '';
+
+      return `<tr>
+        <td class="rank-cell"><span class="rank-badge ${badgeClass}">${rank}</span></td>
+        <td class="team-name-cell"><span class="team-color-dot" style="background:${color}"></span>${esc(entry.team.name)}${winner}</td>
+        <td class="members-cell">${members || '—'}</td>
+        <td class="score-cell">${formatNumber(entry.totalScore)}</td>
+        <td><div class="phase-scores">${phases || '—'}</div></td>
+      </tr>`;
+    });
+    tbody.innerHTML = rows.join('');
+  }
+
+  // ── Stats ──
+  function renderStats() {
+    const grid = document.getElementById('stats-grid');
+    const totalTeams = leaderboardData.length;
+    const totalPoints = leaderboardData.reduce((s, e) => s + e.totalScore, 0);
+    const avgScore = totalTeams > 0 ? Math.round(totalPoints / totalTeams) : 0;
+    const highestScore = totalTeams > 0 ? leaderboardData[0].totalScore : 0;
+    const lowestScore = totalTeams > 0 ? leaderboardData[leaderboardData.length - 1].totalScore : 0;
+    const totalCompleted = leaderboardData.reduce((s, e) => s + (e.challengesCompleted || 0), 0);
+
+    // Most competitive: smallest gap between consecutive teams
+    let closestGap = Infinity;
+    let closestPair = '';
+    for (let i = 0; i < leaderboardData.length - 1; i++) {
+      const gap = leaderboardData[i].totalScore - leaderboardData[i + 1].totalScore;
+      if (gap < closestGap) {
+        closestGap = gap;
+        closestPair = `${esc(leaderboardData[i].team.name)} vs ${esc(leaderboardData[i + 1].team.name)}`;
+      }
+    }
+
+    const stats = [
+      { value: totalTeams, label: 'Total Teams' },
+      { value: formatNumber(totalPoints), label: 'Total Points Scored' },
+      { value: formatNumber(avgScore), label: 'Average Score' },
+      { value: formatNumber(highestScore), label: 'Highest Score' },
+      { value: formatNumber(totalCompleted), label: 'Challenges Completed' },
+      { value: closestGap === Infinity ? '—' : closestGap + ' pts', label: closestPair ? 'Closest Race: ' + closestPair : 'Closest Race' },
+    ];
+
+    grid.innerHTML = stats.map(s => `
+      <div class="stat-card">
+        <div class="stat-value">${s.value}</div>
+        <div class="stat-label">${s.label}</div>
+      </div>
+    `).join('');
+  }
+
+  // ── Shareable Summary ──
+  function renderSummary() {
+    const box = document.getElementById('summary-box');
+    const lines = ['🔀 The Merge — Final Results', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━'];
+
+    leaderboardData.forEach((entry, idx) => {
+      const rank = idx + 1;
+      let prefix = '   ';
+      if (rank === 1) prefix = '🏆 ';
+      else if (rank === 2) prefix = '🥈 ';
+      else if (rank === 3) prefix = '🥉 ';
+      const ordinal = rank === 1 ? '1st' : rank === 2 ? '2nd' : rank === 3 ? '3rd' : rank + 'th';
+      lines.push(`${prefix}${ordinal}: ${entry.team.name} — ${formatNumber(entry.totalScore)} pts`);
+    });
+
+    const totalTeams = leaderboardData.length;
+    const totalPoints = leaderboardData.reduce((s, e) => s + e.totalScore, 0);
+    lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    lines.push(`Teams: ${totalTeams} | Total Points: ${formatNumber(totalPoints)}`);
+
+    box.textContent = lines.join('\n');
+  }
+
+  function copySummary() {
+    const text = document.getElementById('summary-box').textContent;
+    navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
+  }
+
+  // ── Export ──
+  function exportJSON() {
+    const data = leaderboardData.map((entry, idx) => ({
+      rank: idx + 1,
+      team: entry.team.name,
+      members: entry.team.members || [],
+      color: entry.team.color,
+      totalScore: entry.totalScore,
+      challengesCompleted: entry.challengesCompleted,
+    }));
+    downloadFile('merge-results.json', JSON.stringify(data, null, 2), 'application/json');
+    showToast('JSON downloaded');
+  }
+
+  function exportCSV() {
+    const header = ['Rank', 'Team', 'Members', 'Score', 'Challenges Completed'];
+    const rows = leaderboardData.map((entry, idx) => {
+      const members = (entry.team.members || []).join('; ');
+      return [idx + 1, `"${entry.team.name}"`, `"${members}"`, entry.totalScore, entry.challengesCompleted || 0];
+    });
+    const csv = [header.join(','), ...rows.map(r => r.join(','))].join('\n');
+    downloadFile('merge-results.csv', csv, 'text/csv');
+    showToast('CSV downloaded');
+  }
+
+  // ── Certificates ──
+  function generateCertificates() {
+    const container = document.getElementById('certificates-container');
+    const certs = [];
+    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    leaderboardData.forEach((entry, idx) => {
+      const rank = idx + 1;
+      const members = entry.team.members || ['Team ' + entry.team.name];
+
+      let designation, designationIcon;
+      if (rank === 1) { designation = 'Champion'; designationIcon = '🏆'; }
+      else if (rank === 2) { designation = 'Runner-Up'; designationIcon = '🥈'; }
+      else if (rank === 3) { designation = 'Third Place'; designationIcon = '🥉'; }
+      else { designation = 'Participant'; designationIcon = '⭐'; }
+
+      const certTitle = rank <= 3 ? 'Certificate of Achievement' : 'Certificate of Participation';
+      const ordinal = rank === 1 ? '1st' : rank === 2 ? '2nd' : rank === 3 ? '3rd' : rank + 'th';
+
+      members.forEach(member => {
+        certs.push(`
+          <div class="certificate">
+            <div class="cert-border-inner"></div>
+            <div class="cert-header">The Merge</div>
+            <div class="cert-tagline">Build. Break. Ship.</div>
+            <div class="cert-title">${esc(certTitle)}</div>
+            <div class="cert-designation">${designationIcon} ${esc(designation)}</div>
+            <div class="cert-body">
+              This certifies that
+              <span class="member-name">${esc(member)}</span>
+              of team <span class="team-ref">${esc(entry.team.name)}</span>
+            </div>
+            <div class="cert-details">Placed ${esc(ordinal)} with ${formatNumber(entry.totalScore)} points</div>
+            <div class="cert-footer">
+              <div class="sig-block">
+                <div class="sig-line"></div>
+                <div class="sig-label">Facilitator</div>
+              </div>
+              <div class="sig-block">
+                <div class="sig-line"></div>
+                <div class="sig-label">${esc(today)}</div>
+              </div>
+            </div>
+          </div>
+        `);
+      });
+    });
+
+    container.innerHTML = certs.join('');
+    document.getElementById('btn-print-certs').style.display = '';
+    showToast(`Generated ${certs.length} certificates`);
+  }
+
+  // ── Init ──
+  loadData();
+</script>
+</body>
+</html>

@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Merge — Admin Panel</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+  /* ============================================================
+     CSS Variables — matching big-screen design tokens
+     ============================================================ */
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface-2: #1a2234;
+    --border: #1f2937;
+    --border-focus: #3b82f6;
+    --text: #f1f5f9;
+    --muted: #64748b;
+    --accent: #3b82f6;
+    --purple: #8b5cf6;
+    --pink: #ec4899;
+    --gold: #f59e0b;
+    --silver: #94a3b8;
+    --bronze: #d97706;
+    --green: #22c55e;
+    --red: #ef4444;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  /* ============================================================
+     Reset & Base
+     ============================================================ */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ============================================================
+     Scrollbar
+     ============================================================ */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* ============================================================
+     Header
+     ============================================================ */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 32px 16px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(270deg, rgba(59,130,246,0.06), rgba(139,92,246,0.06), rgba(236,72,153,0.06), rgba(59,130,246,0.06));
+    background-size: 600% 100%;
+    animation: header-gradient 20s ease infinite;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+
+  @keyframes header-gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .header-left { display: flex; align-items: baseline; gap: 14px; }
+
+  .header-left h1 {
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-left .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .connection-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+  }
+
+  .connection-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    flex-shrink: 0;
+  }
+
+  .connection-dot.disconnected {
+    background: var(--red);
+    animation: pulse-dot 1s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .uptime {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+  }
+
+  .clock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+
+  /* ============================================================
+     Layout
+     ============================================================ */
+  .main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px 32px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+
+  .panel-header h2 {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .panel-body { padding: 20px; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+
+  @media (max-width: 900px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .main { padding: 16px; }
+    .header { padding: 16px; flex-wrap: wrap; gap: 12px; }
+  }
+
+  /* ============================================================
+     Quick Actions Bar
+     ============================================================ */
+  .quick-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+  }
+
+  /* ============================================================
+     Buttons
+     ============================================================ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-2);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .btn:hover { background: var(--border); border-color: var(--muted); }
+  .btn:active { transform: scale(0.97); }
+
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #2563eb; }
+
+  .btn-danger {
+    border-color: rgba(239,68,68,0.3);
+    color: var(--red);
+  }
+  .btn-danger:hover { background: rgba(239,68,68,0.1); border-color: var(--red); }
+
+  .btn-gold {
+    border-color: rgba(245,158,11,0.3);
+    color: var(--gold);
+  }
+  .btn-gold:hover { background: rgba(245,158,11,0.1); border-color: var(--gold); }
+
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+  /* ============================================================
+     Tables
+     ============================================================ */
+  table { width: 100%; border-collapse: collapse; }
+
+  th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 10px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(31,41,55,0.5);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(59,130,246,0.04); }
+
+  .color-swatch {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  .rank-cell {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 14px;
+    width: 50px;
+  }
+
+  .rank-1 { color: var(--gold); }
+  .rank-2 { color: var(--silver); }
+  .rank-3 { color: var(--bronze); }
+
+  .score-cell {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .editable-score {
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 4px;
+    transition: background 0.15s;
+  }
+
+  .editable-score:hover { background: rgba(59,130,246,0.15); }
+
+  /* ============================================================
+     Forms
+     ============================================================ */
+  .form-group { margin-bottom: 14px; }
+
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .form-group .helper {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+
+  input[type="number"] { font-family: 'JetBrains Mono', monospace; }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .checkbox-row input[type="checkbox"] { width: auto; }
+
+  /* ============================================================
+     Score Feed
+     ============================================================ */
+  .feed { max-height: 200px; overflow-y: auto; }
+
+  .feed-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    font-size: 12px;
+    border-bottom: 1px solid rgba(31,41,55,0.4);
+  }
+
+  .feed-item:last-child { border-bottom: none; }
+
+  .feed-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     Team Cards
+     ============================================================ */
+  .team-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .team-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    background: var(--bg);
+    border-left: 4px solid var(--muted);
+    transition: background 0.15s;
+  }
+
+  .team-card:hover { background: var(--surface-2); }
+
+  .team-card-info { flex: 1; min-width: 0; }
+
+  .team-card-name {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .team-card-meta {
+    font-size: 12px;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .team-card-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  /* ============================================================
+     Phase Tracker
+     ============================================================ */
+  .phase-track {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .phase-item {
+    padding: 14px;
+    border-radius: var(--radius);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .phase-item:hover { border-color: var(--muted); }
+
+  .phase-item.active {
+    border-color: var(--accent);
+    background: rgba(59,130,246,0.08);
+    box-shadow: 0 0 20px rgba(59,130,246,0.1);
+  }
+
+  .phase-item .phase-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .phase-item .phase-name {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+
+  .phase-item .phase-pts {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .phase-timer {
+    text-align: center;
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+
+  .phase-timer .timer-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+
+  .phase-timer .timer-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  /* ============================================================
+     Stats Cards
+     ============================================================ */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+
+  .stat-card {
+    padding: 16px;
+    border-radius: var(--radius);
+    background: var(--bg);
+    border: 1px solid var(--border);
+  }
+
+  .stat-card .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .stat-card .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  .stat-card .stat-detail {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ============================================================
+     Winner Overlay
+     ============================================================ */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,14,26,0.92);
+    z-index: 500;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(8px);
+  }
+
+  .overlay.visible { display: flex; }
+
+  .winner-card {
+    text-align: center;
+    padding: 48px 64px;
+    border-radius: 16px;
+    background: var(--surface);
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 60px rgba(245,158,11,0.2);
+    max-width: 500px;
+  }
+
+  .winner-card .trophy { font-size: 64px; margin-bottom: 16px; }
+
+  .winner-card h2 {
+    font-size: 28px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--gold), #fbbf24);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+
+  .winner-card .winner-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--gold);
+    margin: 12px 0;
+  }
+
+  .winner-card .winner-motto {
+    font-size: 14px;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 24px;
+  }
+
+  /* ============================================================
+     Inline Editing
+     ============================================================ */
+  .inline-edit-input {
+    background: var(--bg);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    width: 80px;
+    text-align: center;
+  }
+
+  /* ============================================================
+     Toast Notification
+     ============================================================ */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 600;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .toast {
+    padding: 10px 18px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    animation: toast-in 0.25s ease;
+    max-width: 360px;
+  }
+
+  .toast.success { border-color: var(--green); color: var(--green); }
+  .toast.error { border-color: var(--red); color: var(--red); }
+  .toast.info { border-color: var(--accent); color: var(--accent); }
+
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ============================================================
+     Add Team Form
+     ============================================================ */
+  .add-team-form {
+    display: none;
+    padding: 16px;
+    background: var(--bg);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-top: 12px;
+  }
+
+  .add-team-form.visible { display: block; }
+
+  .add-team-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto 1fr;
+    gap: 10px;
+    align-items: end;
+  }
+
+  @media (max-width: 700px) {
+    .add-team-row { grid-template-columns: 1fr; }
+    .phase-track { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     Header
+     ============================================================ -->
+<div class="header">
+  <div class="header-left">
+    <h1>🔀 The Merge — Admin Panel</h1>
+    <span class="subtitle">Build. Break. Ship.</span>
+  </div>
+  <div class="header-right">
+    <div class="connection-status">
+      <span class="connection-dot" id="connDot"></span>
+      <span id="connLabel">Connecting…</span>
+    </div>
+    <div class="uptime" id="uptimeLabel">—</div>
+    <div class="clock" id="clock">--:--:--</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     Main Content
+     ============================================================ -->
+<div class="main">
+
+  <!-- Quick Actions -->
+  <div class="panel">
+    <div class="quick-actions">
+      <button class="btn" onclick="actionAnnouncement()">📢 Send Announcement</button>
+      <button class="btn btn-gold" onclick="actionWinnerMode()">🏆 Winner Mode</button>
+      <button class="btn btn-danger" onclick="actionResetScores()">🔄 Reset All Scores</button>
+      <button class="btn" onclick="actionExportResults()">📊 Export Results</button>
+    </div>
+  </div>
+
+  <!-- Event Stats Dashboard -->
+  <div class="panel">
+    <div class="panel-header"><h2>📈 Event Stats</h2></div>
+    <div class="panel-body">
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card"><div class="stat-label">Total Teams</div><div class="stat-value" id="statTeams">—</div></div>
+        <div class="stat-card"><div class="stat-label">Total Points Scored</div><div class="stat-value" id="statPoints">—</div></div>
+        <div class="stat-card"><div class="stat-label">Average Score</div><div class="stat-value" id="statAvg">—</div></div>
+        <div class="stat-card"><div class="stat-label">Highest Scoring</div><div class="stat-value" id="statTop">—</div><div class="stat-detail" id="statTopDetail"></div></div>
+        <div class="stat-card"><div class="stat-label">Closest Gap</div><div class="stat-value" id="statGap">—</div><div class="stat-detail" id="statGapDetail"></div></div>
+        <div class="stat-card"><div class="stat-label">Challenges w/ Scores</div><div class="stat-value" id="statCompletion">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaderboard + Score Submission (side by side) -->
+  <div class="grid-2">
+    <!-- Leaderboard -->
+    <div class="panel">
+      <div class="panel-header"><h2>🏅 Leaderboard</h2><span style="font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace" id="lbRefresh">auto-refresh</span></div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:50px">#</th>
+              <th>Team</th>
+              <th>Members</th>
+              <th style="text-align:right">Score</th>
+              <th style="text-align:right">Updated</th>
+            </tr>
+          </thead>
+          <tbody id="lbBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Score Submission -->
+    <div class="panel">
+      <div class="panel-header"><h2>🎯 Score Submission</h2></div>
+      <div class="panel-body">
+        <div class="form-group">
+          <label>Team</label>
+          <select id="scoreTeam"><option value="">Select team…</option></select>
+        </div>
+        <div class="form-group">
+          <label>Challenge / Phase</label>
+          <select id="scoreChallenge"><option value="">Select challenge…</option></select>
+        </div>
+        <div class="form-group">
+          <label>Points</label>
+          <input type="number" id="scorePoints" min="0" placeholder="0">
+          <div class="helper" id="scoreMaxHelper"></div>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="scoreComplete">
+          <label for="scoreComplete" style="margin:0;text-transform:none;font-size:13px;color:var(--text)">Also mark challenge complete</label>
+        </div>
+        <div style="margin-top:16px">
+          <button class="btn btn-primary" onclick="submitScore()">Submit Score</button>
+        </div>
+
+        <!-- Recent Submissions Feed -->
+        <div style="margin-top:20px">
+          <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:8px">Recent Submissions</div>
+          <div class="feed" id="scoreFeed">
+            <div style="padding:12px;text-align:center;color:var(--muted);font-size:12px">No submissions yet this session</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Phase Control + Team Management (side by side) -->
+  <div class="grid-2">
+    <!-- Phase Control -->
+    <div class="panel">
+      <div class="panel-header"><h2>⏱️ Phase Control</h2></div>
+      <div class="panel-body">
+        <div class="phase-track" id="phaseTrack"></div>
+        <div class="phase-timer">
+          <div class="timer-display" id="timerDisplay">30:00</div>
+          <div class="timer-label" id="timerLabel">Phase timer (local)</div>
+          <div class="timer-controls">
+            <button class="btn btn-sm" onclick="timerStart()">▶ Start</button>
+            <button class="btn btn-sm" onclick="timerPause()">⏸ Pause</button>
+            <button class="btn btn-sm" onclick="timerReset()">↺ Reset</button>
+            <button class="btn btn-sm" onclick="timerSet()">⏲ Set Time</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team Management -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>👥 Team Management</h2>
+        <button class="btn btn-sm" onclick="toggleAddTeam()">+ Add Team</button>
+      </div>
+      <div class="panel-body">
+        <div class="add-team-form" id="addTeamForm">
+          <div class="add-team-row">
+            <div class="form-group" style="margin:0"><label>Name</label><input id="newTeamName" placeholder="Team name"></div>
+            <div class="form-group" style="margin:0"><label>Members (comma-separated)</label><input id="newTeamMembers" placeholder="Alice, Bob"></div>
+            <div class="form-group" style="margin:0"><label>Color</label><input type="color" id="newTeamColor" value="#3b82f6" style="width:48px;height:34px;padding:2px"></div>
+            <div class="form-group" style="margin:0;align-self:end"><button class="btn btn-primary btn-sm" onclick="addTeam()">Create</button></div>
+          </div>
+        </div>
+        <div class="team-list" id="teamList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Winner Overlay -->
+<div class="overlay" id="winnerOverlay" onclick="closeWinner(event)">
+  <div class="winner-card" id="winnerCard">
+    <div class="trophy">🏆</div>
+    <h2 id="winnerName">—</h2>
+    <div class="winner-motto" id="winnerMotto"></div>
+    <div class="winner-score" id="winnerScore">0</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:24px">points</div>
+    <button class="btn" onclick="closeWinner()">Close</button>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ============================================================
+     JavaScript — single file, no dependencies
+     ============================================================ -->
+<script>
+/* ============================================================
+   Utilities
+   ============================================================ */
+
+/** HTML-escape dynamic content */
+function esc(str) {
+  if (str == null) return '';
+  var div = document.createElement('div');
+  div.appendChild(document.createTextNode(String(str)));
+  return div.innerHTML;
+}
+
+/** Format seconds as mm:ss */
+function fmtTime(sec) {
+  var m = Math.floor(sec / 60);
+  var s = sec % 60;
+  return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
+
+/** Format uptime seconds to human string */
+function fmtUptime(sec) {
+  if (sec < 60) return Math.floor(sec) + 's';
+  if (sec < 3600) return Math.floor(sec / 60) + 'm ' + Math.floor(sec % 60) + 's';
+  var h = Math.floor(sec / 3600);
+  var m = Math.floor((sec % 3600) / 60);
+  return h + 'h ' + m + 'm';
+}
+
+/** Relative time from ISO string */
+function relTime(iso) {
+  if (!iso) return '—';
+  var diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
+  if (diff < 5) return 'just now';
+  if (diff < 60) return diff + 's ago';
+  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+  return Math.floor(diff / 3600) + 'h ago';
+}
+
+/* ============================================================
+   State — single mutable state object
+   ============================================================ */
+var state = {
+  teams: [],
+  leaderboard: [],
+  challenges: [],
+  connected: false,
+  uptime: 0,
+  // Phase control (local only)
+  currentPhase: 0,
+  timerSeconds: 1800,
+  timerRunning: false,
+  timerInterval: null,
+  phaseDurations: [1800, 1800, 1800, 1800],
+  // Score feed (in-memory)
+  submissions: [],
+  // Stale-fetch guard
+  fetching: false,
+  // Editing state
+  editingTeamId: null
+};
+
+/* ============================================================
+   Toast notifications
+   ============================================================ */
+function toast(msg, type) {
+  type = type || 'info';
+  var el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.textContent = msg;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(function() { el.remove(); }, 4000);
+}
+
+/* ============================================================
+   API helpers — always use origin, parseInt for team IDs
+   ============================================================ */
+var API = window.location.origin;
+
+function apiFetch(path, opts) {
+  opts = opts || {};
+  opts.headers = opts.headers || {};
+  if (opts.body && typeof opts.body === 'object') {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(opts.body);
+  }
+  return fetch(API + path, opts).then(function(r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  });
+}
+
+/* ============================================================
+   Data Polling
+   ============================================================ */
+function pollData() {
+  if (state.fetching) return;
+  state.fetching = true;
+
+  Promise.all([
+    apiFetch('/api/teams').catch(function() { return null; }),
+    apiFetch('/api/leaderboard').catch(function() { return null; }),
+    apiFetch('/api/leaderboard/challenges').catch(function() { return null; }),
+    apiFetch('/health').catch(function() { return null; })
+  ]).then(function(results) {
+    state.fetching = false;
+    var teams = results[0];
+    var lb = results[1];
+    var ch = results[2];
+    var health = results[3];
+
+    if (health) {
+      state.connected = true;
+      state.uptime = health.uptime || 0;
+    } else {
+      state.connected = false;
+    }
+
+    if (teams) state.teams = teams;
+    if (lb) state.leaderboard = lb;
+    if (ch) state.challenges = ch;
+
+    renderAll();
+  }).catch(function() {
+    state.fetching = false;
+    state.connected = false;
+    renderHeader();
+  });
+}
+
+/* ============================================================
+   Render Functions
+   ============================================================ */
+function renderAll() {
+  renderHeader();
+  renderLeaderboard();
+  renderTeamDropdown();
+  renderChallengeDropdown();
+  renderTeamList();
+  renderPhaseTrack();
+  renderStats();
+}
+
+/* ---- Header ---- */
+function renderHeader() {
+  var dot = document.getElementById('connDot');
+  var label = document.getElementById('connLabel');
+  if (state.connected) {
+    dot.className = 'connection-dot';
+    label.textContent = 'Connected';
+  } else {
+    dot.className = 'connection-dot disconnected';
+    label.textContent = 'Disconnected';
+  }
+  document.getElementById('uptimeLabel').textContent = state.connected ? 'up ' + fmtUptime(state.uptime) : '';
+}
+
+/* ---- Leaderboard Table ---- */
+function renderLeaderboard() {
+  var body = document.getElementById('lbBody');
+  // The API returns ascending (bug) — we sort descending for display
+  var sorted = state.leaderboard.slice().sort(function(a, b) { return b.totalScore - a.totalScore; });
+
+  var html = '';
+  for (var i = 0; i < sorted.length; i++) {
+    var entry = sorted[i];
+    var team = entry.team || {};
+    var rankClass = i < 3 ? ' rank-' + (i + 1) : '';
+    var medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+
+    html += '<tr>';
+    html += '<td class="rank-cell' + rankClass + '">' + medal + ' ' + (i + 1) + '</td>';
+    html += '<td><span class="color-swatch" style="background:' + esc(team.color || '#6b7280') + '"></span>' + esc(team.name) + '</td>';
+    html += '<td style="color:var(--muted);font-size:12px">' + esc((team.members || []).join(', ')) + '</td>';
+    html += '<td class="score-cell" style="text-align:right"><span class="editable-score" onclick="editScore(' + (team.id || 0) + ', this, ' + entry.totalScore + ')" title="Click to edit">' + entry.totalScore + '</span></td>';
+    html += '<td style="text-align:right;color:var(--muted);font-size:11px;font-family:\'JetBrains Mono\',monospace">' + relTime(entry.lastUpdated) + '</td>';
+    html += '</tr>';
+  }
+
+  if (sorted.length === 0) {
+    html = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:24px">No leaderboard data</td></tr>';
+  }
+
+  body.innerHTML = html;
+  document.getElementById('lbRefresh').textContent = 'updated ' + new Date().toLocaleTimeString();
+}
+
+/* ---- Inline Score Editing ---- */
+function editScore(teamId, el, currentScore) {
+  if (el.querySelector('input')) return;
+  var orig = el.innerHTML;
+  el.innerHTML = '<input type="number" class="inline-edit-input" value="' + currentScore + '" autofocus>';
+  var input = el.querySelector('input');
+  input.focus();
+  input.select();
+
+  function save() {
+    var val = parseInt(input.value, 10);
+    if (isNaN(val) || val === currentScore) {
+      el.innerHTML = orig;
+      return;
+    }
+    // Submit to first challenge as a quick override
+    var challengeId = state.challenges.length > 0 ? state.challenges[0].id : 'rescue';
+    apiFetch('/api/leaderboard/score', {
+      method: 'POST',
+      body: { teamId: parseInt(teamId, 10), challengeId: challengeId, points: val }
+    }).then(function() {
+      toast('Score updated for team #' + teamId, 'success');
+      pollData();
+    }).catch(function(e) {
+      toast('Failed to update score: ' + e.message, 'error');
+      el.innerHTML = orig;
+    });
+  }
+
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') save();
+    if (e.key === 'Escape') el.innerHTML = orig;
+  });
+  input.addEventListener('blur', save);
+}
+
+/* ---- Team Dropdown (Score Panel) ---- */
+function renderTeamDropdown() {
+  var sel = document.getElementById('scoreTeam');
+  var cur = sel.value;
+  var html = '<option value="">Select team…</option>';
+  for (var i = 0; i < state.teams.length; i++) {
+    var t = state.teams[i];
+    html += '<option value="' + t.id + '"' + (String(t.id) === cur ? ' selected' : '') + '>' + esc(t.name) + '</option>';
+  }
+  sel.innerHTML = html;
+}
+
+/* ---- Challenge Dropdown ---- */
+function renderChallengeDropdown() {
+  var sel = document.getElementById('scoreChallenge');
+  var cur = sel.value;
+  var html = '<option value="">Select challenge…</option>';
+  for (var i = 0; i < state.challenges.length; i++) {
+    var c = state.challenges[i];
+    html += '<option value="' + esc(c.id) + '"' + (c.id === cur ? ' selected' : '') + '>' + esc(c.name) + ' (' + c.maxPoints + ' pts)</option>';
+  }
+  sel.innerHTML = html;
+}
+
+/* ---- Max Points Helper ---- */
+document.getElementById('scoreChallenge').addEventListener('change', function() {
+  var id = this.value;
+  var helper = document.getElementById('scoreMaxHelper');
+  for (var i = 0; i < state.challenges.length; i++) {
+    if (state.challenges[i].id === id) {
+      helper.textContent = 'Max: ' + state.challenges[i].maxPoints + ' points';
+      document.getElementById('scorePoints').max = state.challenges[i].maxPoints;
+      return;
+    }
+  }
+  helper.textContent = '';
+});
+
+/* ---- Team List ---- */
+function renderTeamList() {
+  var el = document.getElementById('teamList');
+  if (state.teams.length === 0) {
+    el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No teams registered</div>';
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < state.teams.length; i++) {
+    var t = state.teams[i];
+    var isEditing = state.editingTeamId === t.id;
+
+    html += '<div class="team-card" style="border-left-color:' + esc(t.color || '#6b7280') + '">';
+
+    if (isEditing) {
+      html += '<div class="team-card-info">';
+      html += '<input id="editName_' + t.id + '" value="' + esc(t.name) + '" style="margin-bottom:4px;font-size:14px;font-weight:600">';
+      html += '<input id="editMembers_' + t.id + '" value="' + esc((t.members || []).join(', ')) + '" placeholder="Members (comma-separated)" style="font-size:12px;margin-bottom:4px">';
+      html += '<input id="editMotto_' + t.id + '" value="' + esc(t.motto || '') + '" placeholder="Motto" style="font-size:12px">';
+      html += '</div>';
+      html += '<div class="team-card-actions">';
+      html += '<button class="btn btn-sm btn-primary" onclick="saveTeamEdit(' + t.id + ')">Save</button>';
+      html += '<button class="btn btn-sm" onclick="cancelTeamEdit()">Cancel</button>';
+      html += '</div>';
+    } else {
+      html += '<div class="team-card-info">';
+      html += '<div class="team-card-name">' + esc(t.name) + '</div>';
+      html += '<div class="team-card-meta">' + esc((t.members || []).join(', '));
+      if (t.motto) html += ' · <em>' + esc(t.motto) + '</em>';
+      html += '</div>';
+      html += '</div>';
+      html += '<div class="team-card-actions">';
+      html += '<button class="btn btn-sm" onclick="startTeamEdit(' + t.id + ')">Edit</button>';
+      html += '<button class="btn btn-sm btn-danger" onclick="deleteTeam(' + t.id + ', \'' + esc(t.name).replace(/'/g, "\\'") + '\')">Delete</button>';
+      html += '</div>';
+    }
+
+    html += '</div>';
+  }
+  el.innerHTML = html;
+}
+
+/* ---- Team Edit ---- */
+function startTeamEdit(id) {
+  state.editingTeamId = id;
+  renderTeamList();
+}
+
+function cancelTeamEdit() {
+  state.editingTeamId = null;
+  renderTeamList();
+}
+
+function saveTeamEdit(id) {
+  var name = document.getElementById('editName_' + id).value.trim();
+  var members = document.getElementById('editMembers_' + id).value.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+  var motto = document.getElementById('editMotto_' + id).value.trim();
+
+  apiFetch('/api/teams/' + parseInt(id, 10), {
+    method: 'PUT',
+    body: { name: name || undefined, members: members.length ? members : undefined, motto: motto || undefined }
+  }).then(function() {
+    toast('Team updated', 'success');
+    state.editingTeamId = null;
+    pollData();
+  }).catch(function(e) {
+    toast('Update failed: ' + e.message, 'error');
+  });
+}
+
+function deleteTeam(id, name) {
+  if (!confirm('Delete team "' + name + '"? This cannot be undone.')) return;
+  apiFetch('/api/teams/' + parseInt(id, 10), { method: 'DELETE' }).then(function() {
+    toast('Team deleted', 'success');
+    pollData();
+  }).catch(function(e) {
+    toast('Delete failed: ' + e.message, 'error');
+  });
+}
+
+/* ---- Add Team ---- */
+function toggleAddTeam() {
+  document.getElementById('addTeamForm').classList.toggle('visible');
+}
+
+function addTeam() {
+  var name = document.getElementById('newTeamName').value.trim();
+  var members = document.getElementById('newTeamMembers').value.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+  var color = document.getElementById('newTeamColor').value;
+  if (!name) { toast('Team name is required', 'error'); return; }
+
+  apiFetch('/api/teams', {
+    method: 'POST',
+    body: { name: name, members: members, color: color }
+  }).then(function() {
+    toast('Team "' + name + '" created', 'success');
+    document.getElementById('newTeamName').value = '';
+    document.getElementById('newTeamMembers').value = '';
+    document.getElementById('addTeamForm').classList.remove('visible');
+    pollData();
+  }).catch(function(e) {
+    toast('Create failed: ' + e.message, 'error');
+  });
+}
+
+/* ---- Phase Tracker ---- */
+function renderPhaseTrack() {
+  var el = document.getElementById('phaseTrack');
+  var phases = state.challenges.length > 0 ? state.challenges : [
+    { id: 'rescue', name: 'Phase 1 — Rescue', maxPoints: 100 },
+    { id: 'debug', name: 'Phase 2 — Bug Hunt', maxPoints: 150 },
+    { id: 'features', name: 'Phase 3 — Feature Build', maxPoints: 200 },
+    { id: 'finals', name: 'Phase 4 — Final Boss', maxPoints: 250 }
+  ];
+
+  var html = '';
+  for (var i = 0; i < phases.length; i++) {
+    var active = i === state.currentPhase ? ' active' : '';
+    html += '<div class="phase-item' + active + '" onclick="setPhase(' + i + ')">';
+    html += '<div class="phase-num">Phase ' + (i + 1) + '</div>';
+    html += '<div class="phase-name">' + esc(phases[i].name.replace(/^Phase \d+ — /, '')) + '</div>';
+    html += '<div class="phase-pts">' + phases[i].maxPoints + ' pts</div>';
+    html += '</div>';
+  }
+  el.innerHTML = html;
+}
+
+function setPhase(idx) {
+  state.currentPhase = idx;
+  timerReset();
+  renderPhaseTrack();
+}
+
+/* ---- Phase Timer ---- */
+function timerStart() {
+  if (state.timerRunning) return;
+  state.timerRunning = true;
+  state.timerInterval = setInterval(function() {
+    if (state.timerSeconds <= 0) {
+      timerPause();
+      toast('⏰ Phase timer finished!', 'info');
+      return;
+    }
+    state.timerSeconds--;
+    renderTimer();
+  }, 1000);
+  renderTimer();
+}
+
+function timerPause() {
+  state.timerRunning = false;
+  if (state.timerInterval) clearInterval(state.timerInterval);
+  state.timerInterval = null;
+  renderTimer();
+}
+
+function timerReset() {
+  timerPause();
+  state.timerSeconds = state.phaseDurations[state.currentPhase] || 1800;
+  renderTimer();
+}
+
+function timerSet() {
+  var input = prompt('Set timer (minutes):', Math.ceil(state.timerSeconds / 60));
+  if (input === null) return;
+  var mins = parseInt(input, 10);
+  if (isNaN(mins) || mins < 0) { toast('Invalid time', 'error'); return; }
+  state.timerSeconds = mins * 60;
+  state.phaseDurations[state.currentPhase] = state.timerSeconds;
+  renderTimer();
+}
+
+function renderTimer() {
+  document.getElementById('timerDisplay').textContent = fmtTime(state.timerSeconds);
+  var label = state.timerRunning ? '▶ Running' : '⏸ Paused';
+  var phases = state.challenges.length > 0 ? state.challenges : [{ name: 'Phase 1' }, { name: 'Phase 2' }, { name: 'Phase 3' }, { name: 'Phase 4' }];
+  var phaseName = phases[state.currentPhase] ? phases[state.currentPhase].name : '';
+  document.getElementById('timerLabel').textContent = phaseName + ' · ' + label;
+}
+
+/* ---- Stats Dashboard ---- */
+function renderStats() {
+  // Sort descending for stats
+  var sorted = state.leaderboard.slice().sort(function(a, b) { return b.totalScore - a.totalScore; });
+  var totalTeams = state.teams.length;
+  var totalPoints = 0;
+  for (var i = 0; i < sorted.length; i++) totalPoints += sorted[i].totalScore;
+  var avg = totalTeams > 0 ? Math.round(totalPoints / totalTeams) : 0;
+
+  document.getElementById('statTeams').textContent = totalTeams;
+  document.getElementById('statPoints').textContent = totalPoints.toLocaleString();
+  document.getElementById('statAvg').textContent = avg.toLocaleString();
+
+  if (sorted.length > 0) {
+    document.getElementById('statTop').textContent = esc(sorted[0].team ? sorted[0].team.name : '—');
+    document.getElementById('statTopDetail').textContent = sorted[0].totalScore + ' pts';
+  } else {
+    document.getElementById('statTop').textContent = '—';
+    document.getElementById('statTopDetail').textContent = '';
+  }
+
+  // Closest gap
+  if (sorted.length >= 2) {
+    var minGap = Infinity;
+    var gapTeams = '';
+    for (var j = 0; j < sorted.length - 1; j++) {
+      var gap = Math.abs(sorted[j].totalScore - sorted[j + 1].totalScore);
+      if (gap < minGap) {
+        minGap = gap;
+        gapTeams = (sorted[j].team ? sorted[j].team.name : '?') + ' vs ' + (sorted[j + 1].team ? sorted[j + 1].team.name : '?');
+      }
+    }
+    document.getElementById('statGap').textContent = minGap + ' pts';
+    document.getElementById('statGapDetail').textContent = gapTeams;
+  } else {
+    document.getElementById('statGap').textContent = '—';
+    document.getElementById('statGapDetail').textContent = '';
+  }
+
+  // Challenges with at least one score submission
+  var challengeIdsScored = {};
+  for (var k = 0; k < state.leaderboard.length; k++) {
+    if (state.leaderboard[k].totalScore > 0) {
+      challengeIdsScored[k] = true;
+    }
+  }
+  var totalChallenges = state.challenges.length || 4;
+  var teamsWithScores = state.leaderboard.filter(function(e) { return e.totalScore > 0; }).length;
+  document.getElementById('statCompletion').textContent = teamsWithScores + ' / ' + totalTeams;
+}
+
+/* ============================================================
+   Score Submission
+   ============================================================ */
+function submitScore() {
+  var teamId = parseInt(document.getElementById('scoreTeam').value, 10);
+  var challengeId = document.getElementById('scoreChallenge').value;
+  var points = parseInt(document.getElementById('scorePoints').value, 10);
+  var markComplete = document.getElementById('scoreComplete').checked;
+
+  if (!teamId || isNaN(teamId)) { toast('Select a team', 'error'); return; }
+  if (!challengeId) { toast('Select a challenge', 'error'); return; }
+  if (isNaN(points)) { toast('Enter points', 'error'); return; }
+
+  apiFetch('/api/leaderboard/score', {
+    method: 'POST',
+    body: { teamId: teamId, challengeId: challengeId, points: points }
+  }).then(function(res) {
+    toast('Score submitted: ' + points + ' pts', 'success');
+    addSubmissionToFeed(teamId, challengeId, points);
+
+    if (markComplete) {
+      return apiFetch('/api/leaderboard/complete', {
+        method: 'POST',
+        body: { teamId: teamId, challengeId: challengeId }
+      }).then(function() {
+        toast('Challenge marked complete', 'success');
+      });
+    }
+  }).then(function() {
+    document.getElementById('scorePoints').value = '';
+    document.getElementById('scoreComplete').checked = false;
+    pollData();
+  }).catch(function(e) {
+    toast('Score submission failed: ' + e.message, 'error');
+  });
+}
+
+function addSubmissionToFeed(teamId, challengeId, points) {
+  var teamName = '?';
+  for (var i = 0; i < state.teams.length; i++) {
+    if (state.teams[i].id === teamId) { teamName = state.teams[i].name; break; }
+  }
+  state.submissions.unshift({
+    team: teamName,
+    challenge: challengeId,
+    points: points,
+    time: new Date()
+  });
+  if (state.submissions.length > 50) state.submissions.length = 50;
+  renderFeed();
+}
+
+function renderFeed() {
+  var el = document.getElementById('scoreFeed');
+  if (state.submissions.length === 0) {
+    el.innerHTML = '<div style="padding:12px;text-align:center;color:var(--muted);font-size:12px">No submissions yet this session</div>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < Math.min(state.submissions.length, 20); i++) {
+    var s = state.submissions[i];
+    html += '<div class="feed-item">';
+    html += '<span>' + esc(s.team) + ' · ' + esc(s.challenge) + ' · <strong>' + s.points + ' pts</strong></span>';
+    html += '<span class="feed-time">' + s.time.toLocaleTimeString() + '</span>';
+    html += '</div>';
+  }
+  el.innerHTML = html;
+}
+
+/* ============================================================
+   Quick Actions
+   ============================================================ */
+
+/* Send Announcement — copies JS snippet to clipboard for big-screen console */
+function actionAnnouncement() {
+  var text = prompt('Enter announcement text:');
+  if (!text) return;
+  var snippet = "document.querySelector('.announcement-banner').classList.add('visible');" +
+    "document.querySelector('.announcement-text').textContent=" + JSON.stringify(text) + ";" +
+    "setTimeout(function(){document.querySelector('.announcement-banner').classList.remove('visible')},15000);";
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(snippet).then(function() {
+      toast('📋 JS snippet copied to clipboard — paste in big-screen console', 'success');
+    }).catch(function() {
+      fallbackCopy(snippet);
+    });
+  } else {
+    fallbackCopy(snippet);
+  }
+}
+
+function fallbackCopy(text) {
+  var ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  ta.remove();
+  toast('📋 JS snippet copied — paste in big-screen console', 'success');
+}
+
+/* Winner Mode */
+function actionWinnerMode() {
+  var sorted = state.leaderboard.slice().sort(function(a, b) { return b.totalScore - a.totalScore; });
+  if (sorted.length === 0) { toast('No leaderboard data', 'error'); return; }
+  if (!confirm('Show winner overlay for: ' + (sorted[0].team ? sorted[0].team.name : 'Unknown') + '?')) return;
+
+  var winner = sorted[0];
+  document.getElementById('winnerName').textContent = winner.team ? winner.team.name : '—';
+  document.getElementById('winnerMotto').textContent = winner.team && winner.team.motto ? '"' + winner.team.motto + '"' : '';
+  document.getElementById('winnerScore').textContent = winner.totalScore;
+  document.getElementById('winnerOverlay').classList.add('visible');
+}
+
+function closeWinner(e) {
+  if (e && e.target !== document.getElementById('winnerOverlay') && !e.target.closest('button')) return;
+  document.getElementById('winnerOverlay').classList.remove('visible');
+}
+
+/* Reset All Scores */
+function actionResetScores() {
+  if (!confirm('⚠️ Are you sure you want to reset ALL scores? This cannot be undone.')) return;
+  var code = prompt('Type RESET to confirm:');
+  if (code !== 'RESET') { toast('Reset cancelled', 'info'); return; }
+
+  // Reset by submitting 0 for each team/challenge combo
+  var promises = [];
+  for (var i = 0; i < state.teams.length; i++) {
+    for (var j = 0; j < state.challenges.length; j++) {
+      promises.push(apiFetch('/api/leaderboard/score', {
+        method: 'POST',
+        body: { teamId: parseInt(state.teams[i].id, 10), challengeId: state.challenges[j].id, points: 0 }
+      }).catch(function() {}));
+    }
+  }
+  Promise.all(promises).then(function() {
+    toast('All scores reset to 0', 'success');
+    pollData();
+  });
+}
+
+/* Export Results */
+function actionExportResults() {
+  var sorted = state.leaderboard.slice().sort(function(a, b) { return b.totalScore - a.totalScore; });
+  var exportData = {
+    event: 'The Merge — Build. Break. Ship.',
+    exportedAt: new Date().toISOString(),
+    standings: sorted.map(function(entry, idx) {
+      return {
+        rank: idx + 1,
+        team: entry.team ? entry.team.name : 'Unknown',
+        color: entry.team ? entry.team.color : null,
+        members: entry.team ? entry.team.members : [],
+        totalScore: entry.totalScore,
+        challengesCompleted: entry.challengesCompleted,
+        lastUpdated: entry.lastUpdated
+      };
+    })
+  };
+  var blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'the-merge-results-' + new Date().toISOString().slice(0, 16).replace(/[T:]/g, '-') + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Results exported', 'success');
+}
+
+/* ============================================================
+   Clock
+   ============================================================ */
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+/* ============================================================
+   Init
+   ============================================================ */
+(function init() {
+  // Clock — every second
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  // Initial render for phase track (before data arrives)
+  renderPhaseTrack();
+  renderTimer();
+
+  // Initial data fetch
+  pollData();
+
+  // Poll every 3 seconds
+  setInterval(pollData, 3000);
+})();
+</script>
+</body>
+</html>

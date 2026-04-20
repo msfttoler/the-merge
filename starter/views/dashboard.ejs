@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🔀 The Merge</h1>
+        <h2>Hackathon Leaderboard</h2>
+        <p class="timestamp">Last updated: <%= timestamp %></p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Team</th>
+                    <th>Members</th>
+                    <th>Score</th>
+                    <th>Last Update</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (leaderboard.length === 0) { %>
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:40px; color:#999;">
+                        No scores yet — the hackathon hasn't started!
+                    </td>
+                </tr>
+                <% } %>
+                <% leaderboard.forEach(function(entry, index) { %>
+                <tr>
+                    <td class="rank"><%= index + 1 %></td>
+                    <td class="team-name">
+                        <!-- BUG: team color is available but never applied as a style -->
+                        <span><%= entry.team.name %></span>
+                    </td>
+                    <td class="members"><%= entry.team.members.join(', ') %></td>
+                    <td class="score"><%= entry.totalScore %></td>
+                    <td class="updated"><%= entry.lastUpdated || '—' %></td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+
+        <!-- NOTE: No auto-refresh. Page goes stale instantly. -->
+        <!-- NOTE: No challenge progress breakdown. -->
+        <!-- NOTE: No score submission form. Judges have to use curl. -->
+        <!-- NOTE: No animations, no flair, no life. -->
+        <!-- The intern said "we'll add WebSockets in v2." There was no v2. -->
+        <!-- TODO: Add a "we believe in you" message for last place -->
+    </div>
+</body>
+</html>

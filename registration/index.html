@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Merge — Team Registration</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface-2: #1a2236;
+    --border: #1f2937;
+    --border-focus: #3b82f6;
+    --text: #f1f5f9;
+    --muted: #64748b;
+    --accent: #3b82f6;
+    --green: #22c55e;
+    --red: #ef4444;
+    --gold: #f59e0b;
+    --purple: #8b5cf6;
+    --pink: #ec4899;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ---- Header ---- */
+  .header {
+    width: 100%;
+    text-align: center;
+    padding: 48px 24px 32px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(59,130,246,0.05) 0%, transparent 100%);
+  }
+
+  .header h1 {
+    font-size: 48px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header .subtitle {
+    font-size: 18px;
+    color: var(--muted);
+    font-weight: 300;
+    margin-top: 8px;
+  }
+
+  .header .event-badge {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: var(--green);
+  }
+
+  /* ---- Main Content ---- */
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    max-width: 1100px;
+    width: 100%;
+    padding: 48px 24px;
+  }
+
+  @media (max-width: 768px) {
+    .main { grid-template-columns: 1fr; gap: 32px; }
+  }
+
+  /* ---- Registration Form ---- */
+  .form-section h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .form-section .form-desc {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+
+  .form-group input::placeholder,
+  .form-group textarea::placeholder {
+    color: var(--muted);
+    opacity: 0.6;
+  }
+
+  .form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .form-group .help {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* ---- Color Picker ---- */
+  .color-grid {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .color-swatch {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: transform 0.15s, border-color 0.15s;
+    position: relative;
+  }
+
+  .color-swatch:hover {
+    transform: scale(1.15);
+  }
+
+  .color-swatch.selected {
+    border-color: var(--text);
+    transform: scale(1.15);
+  }
+
+  .color-swatch.selected::after {
+    content: '✓';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  }
+
+  /* ---- Members Input ---- */
+  .members-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .member-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .member-row input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .member-row input:focus {
+    border-color: var(--border-focus);
+  }
+
+  .member-remove {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--red);
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+  }
+
+  .member-remove:hover {
+    background: rgba(239, 68, 68, 0.15);
+  }
+
+  .add-member-btn {
+    align-self: flex-start;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px dashed var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    transition: color 0.15s, border-color 0.15s;
+    margin-top: 4px;
+  }
+
+  .add-member-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* ---- Submit Button ---- */
+  .submit-btn {
+    width: 100%;
+    padding: 16px 32px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    letter-spacing: 0.5px;
+    margin-top: 8px;
+  }
+
+  .submit-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .submit-btn:active {
+    transform: translateY(0);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ---- Status Messages ---- */
+  .status {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-top: 16px;
+    display: none;
+  }
+
+  .status.success {
+    display: block;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: var(--green);
+  }
+
+  .status.error {
+    display: block;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--red);
+  }
+
+  /* ---- Teams List ---- */
+  .teams-section h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .teams-section .teams-desc {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  .team-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .teams-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .team-card {
+    padding: 16px 20px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+    animation: card-in 0.4s ease-out;
+  }
+
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .team-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--team-color, var(--muted));
+  }
+
+  .team-card .team-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .team-card .team-name {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .team-card .team-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface-2);
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .team-card .team-members {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .team-card .team-motto {
+    font-size: 12px;
+    font-style: italic;
+    color: var(--muted);
+    opacity: 0.6;
+    margin-top: 4px;
+  }
+
+  .empty-teams {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--muted);
+  }
+
+  .empty-teams .icon {
+    font-size: 48px;
+    opacity: 0.3;
+    margin-bottom: 12px;
+  }
+
+  .empty-teams p {
+    font-size: 15px;
+    font-weight: 300;
+  }
+
+  /* ---- Connection Status ---- */
+  .connection-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px 24px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .connection-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+
+  .connection-dot.online { background: var(--green); }
+  .connection-dot.offline { background: var(--red); }
+
+  /* ---- Footer spacing ---- */
+  .main { padding-bottom: 80px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🔀 The Merge</h1>
+  <div class="subtitle">Build. Break. Ship.</div>
+  <div class="event-badge">Registration Open</div>
+</div>
+
+<div class="main">
+  <!-- Registration Form -->
+  <div class="form-section">
+    <h2>Register Your Team</h2>
+    <p class="form-desc">
+      Pick a team name, choose your color, and add your members.
+      Once registered, you'll see your team on the leaderboard.
+    </p>
+
+    <form id="reg-form" autocomplete="off">
+      <div class="form-group">
+        <label for="team-name">Team Name</label>
+        <input type="text" id="team-name" placeholder="e.g. Merge Conflicts" maxlength="40" required>
+        <div class="help">Keep it short and memorable (max 40 characters)</div>
+      </div>
+
+      <div class="form-group">
+        <label>Team Color</label>
+        <div class="color-grid" id="color-grid"></div>
+      </div>
+
+      <div class="form-group">
+        <label>Members</label>
+        <div class="members-list" id="members-list">
+          <div class="member-row">
+            <input type="text" placeholder="Member name" maxlength="30">
+          </div>
+          <div class="member-row">
+            <input type="text" placeholder="Member name" maxlength="30">
+          </div>
+        </div>
+        <button type="button" class="add-member-btn" id="add-member">+ Add member</button>
+        <div class="help">Add 1–6 members per team</div>
+      </div>
+
+      <div class="form-group">
+        <label for="team-motto">Team Motto <span style="opacity:0.5">(optional)</span></label>
+        <input type="text" id="team-motto" placeholder="e.g. We resolve everything" maxlength="60">
+      </div>
+
+      <button type="submit" class="submit-btn" id="submit-btn">🚀 Register Team</button>
+      <div class="status" id="status"></div>
+    </form>
+  </div>
+
+  <!-- Registered Teams -->
+  <div class="teams-section">
+    <h2>Registered Teams</h2>
+    <p class="teams-desc">Teams appear here as they register.</p>
+    <div class="team-count" id="team-count"></div>
+    <div class="teams-list" id="teams-list">
+      <div class="empty-teams">
+        <div class="icon">👥</div>
+        <p>No teams registered yet</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="connection-bar">
+  <div id="connection-status">
+    <span class="connection-dot offline" id="conn-dot"></span>
+    <span id="conn-text">Connecting...</span>
+  </div>
+  <div>
+    <span style="font-family: JetBrains Mono, monospace">The Merge</span> · Team Registration
+  </div>
+</div>
+
+<script>
+// === CONFIG ===
+const API_BASE = window.location.origin;
+const REFRESH_MS = 5000;
+const MAX_MEMBERS = 6;
+
+const COLORS = [
+  { name: 'Blue',    hex: '#3b82f6' },
+  { name: 'Red',     hex: '#ef4444' },
+  { name: 'Green',   hex: '#22c55e' },
+  { name: 'Amber',   hex: '#f59e0b' },
+  { name: 'Purple',  hex: '#8b5cf6' },
+  { name: 'Pink',    hex: '#ec4899' },
+  { name: 'Cyan',    hex: '#06b6d4' },
+  { name: 'Orange',  hex: '#f97316' },
+  { name: 'Teal',    hex: '#14b8a6' },
+  { name: 'Indigo',  hex: '#6366f1' },
+  { name: 'Rose',    hex: '#f43f5e' },
+  { name: 'Lime',    hex: '#84cc16' },
+];
+
+// === STATE ===
+let selectedColor = COLORS[0].hex;
+let teams = [];
+let connected = false;
+
+// === UTILITIES ===
+function esc(str) {
+  const el = document.createElement('span');
+  el.textContent = str || '';
+  return el.innerHTML;
+}
+
+// === COLOR PICKER ===
+function initColorPicker() {
+  const grid = document.getElementById('color-grid');
+  COLORS.forEach((c, i) => {
+    const swatch = document.createElement('div');
+    swatch.className = 'color-swatch' + (i === 0 ? ' selected' : '');
+    swatch.style.background = c.hex;
+    swatch.title = c.name;
+    swatch.dataset.color = c.hex;
+    swatch.addEventListener('click', () => {
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+      swatch.classList.add('selected');
+      selectedColor = c.hex;
+    });
+    grid.appendChild(swatch);
+  });
+}
+
+// === MEMBERS ===
+function addMemberRow() {
+  const list = document.getElementById('members-list');
+  if (list.children.length >= MAX_MEMBERS) return;
+
+  const row = document.createElement('div');
+  row.className = 'member-row';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.placeholder = 'Member name';
+  input.maxLength = 30;
+
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'member-remove';
+  removeBtn.textContent = '×';
+  removeBtn.addEventListener('click', () => {
+    if (list.children.length > 1) row.remove();
+  });
+
+  row.appendChild(input);
+  row.appendChild(removeBtn);
+  list.appendChild(row);
+  input.focus();
+}
+
+document.getElementById('add-member').addEventListener('click', addMemberRow);
+
+// === FORM SUBMISSION ===
+document.getElementById('reg-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const nameInput = document.getElementById('team-name');
+  const mottoInput = document.getElementById('team-motto');
+  const statusEl = document.getElementById('status');
+  const submitBtn = document.getElementById('submit-btn');
+
+  const name = nameInput.value.trim();
+  if (!name) {
+    showStatus('Please enter a team name.', 'error');
+    return;
+  }
+
+  const memberInputs = document.querySelectorAll('#members-list input');
+  const members = [];
+  memberInputs.forEach(input => {
+    const val = input.value.trim();
+    if (val) members.push(val);
+  });
+
+  if (members.length === 0) {
+    showStatus('Add at least one team member.', 'error');
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Registering...';
+
+  try {
+    const res = await fetch(API_BASE + '/api/teams', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name,
+        members: members,
+        color: selectedColor
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: 'Registration failed' }));
+      throw new Error(err.error || 'Registration failed');
+    }
+
+    const team = await res.json();
+
+    // Set motto if provided
+    const motto = mottoInput.value.trim();
+    if (motto && team.id) {
+      await fetch(API_BASE + '/api/teams/' + team.id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ motto: motto })
+      }).catch(() => {});
+    }
+
+    showStatus(`✅ Team "${esc(name)}" registered! You're team #${team.id}. Good luck!`, 'success');
+
+    // Reset form
+    nameInput.value = '';
+    mottoInput.value = '';
+    document.querySelectorAll('#members-list input').forEach(i => i.value = '');
+
+    // Refresh teams list
+    fetchTeams();
+
+  } catch (err) {
+    showStatus(`❌ ${esc(err.message)}`, 'error');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = '🚀 Register Team';
+  }
+});
+
+function showStatus(html, type) {
+  const el = document.getElementById('status');
+  el.innerHTML = html;
+  el.className = 'status ' + type;
+  setTimeout(() => { el.className = 'status'; }, 6000);
+}
+
+// === TEAMS LIST ===
+function renderTeams() {
+  const container = document.getElementById('teams-list');
+  const countEl = document.getElementById('team-count');
+
+  if (teams.length === 0) {
+    container.innerHTML = `
+      <div class="empty-teams">
+        <div class="icon">👥</div>
+        <p>No teams registered yet</p>
+      </div>`;
+    countEl.textContent = '';
+    return;
+  }
+
+  countEl.textContent = `${teams.length} team${teams.length !== 1 ? 's' : ''} registered`;
+
+  container.innerHTML = teams.map(team => `
+    <div class="team-card" style="--team-color: ${esc(team.color)}">
+      <div class="team-header">
+        <div class="team-name">${esc(team.name)}</div>
+        <div class="team-id">#${team.id}</div>
+      </div>
+      <div class="team-members">👤 ${esc((team.members || []).join(', '))}</div>
+      ${team.motto ? `<div class="team-motto">"${esc(team.motto)}"</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// === DATA FETCHING ===
+async function fetchTeams() {
+  try {
+    const res = await fetch(API_BASE + '/api/teams');
+    if (!res.ok) throw new Error('API error');
+    teams = await res.json();
+    renderTeams();
+    setConnected(true);
+  } catch {
+    setConnected(false);
+  }
+}
+
+function setConnected(online) {
+  connected = online;
+  const dot = document.getElementById('conn-dot');
+  const text = document.getElementById('conn-text');
+  dot.className = 'connection-dot ' + (online ? 'online' : 'offline');
+  text.textContent = online ? 'Connected to API' : 'Disconnected — start the server first';
+}
+
+// === INIT ===
+initColorPicker();
+fetchTeams();
+setInterval(fetchTeams, REFRESH_MS);
+</script>
+</body>
+</html>
