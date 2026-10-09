@@ -1,120 +1,61 @@
-# Phase 2 — Bug Hunt 🐛
+# Act II / Earn back trust
 
-**Time:** 30 minutes  
-**Points:** Up to 150  
-**Story:** _"The leaderboard is 'running' but... why is Team 5 in first place with zero points? Why do scores disappear? Why can't we look up a team? Something is very wrong."_
+**30 minutes / 150 points**
 
----
+**Your user:** a participant who needs the board to tell the truth.
 
-## The Situation
+The app runs. That is not the same as working. Crews disappear. Scores disagree.
+The board looks confident. You should not.
 
-Open **http://localhost:3000** and try these:
+## Ship this
 
-```bash
-# Get the leaderboard — notice anything wrong with the order?
-curl http://localhost:3000/api/leaderboard
+A before/after defect ledger, corrected behavior, and executable regression proof.
+Work from observations: reproduce -> inspect -> failing test -> minimal fix -> rerun.
 
-# Try to get Team 1 by ID — this should work... but does it?
-curl http://localhost:3000/api/teams/1
+| Investigate | Ask |
+|---|---|
+| Ranking and dashboard parity | Do multiple scores sum correctly? Can a zero-score crew see itself? |
+| IDs and score ownership | Do path/body IDs refer to the same stored team? |
+| Validation | Can invalid input change state, corrupt totals, or exceed a cap? |
+| State lifecycle | Do reads leak mutation? Does deletion clean up dependent scores without harming others? |
+| Trust | Is the latest timestamp correct? Are error responses safe? |
 
-# Submit a score
-curl -X POST http://localhost:3000/api/leaderboard/score \
-  -H "Content-Type: application/json" \
-  -d '{"teamId": 1, "challengeId": "rescue", "points": 85}'
+The published rubric lists 12 observable checks. There may be multiple underlying
+defects for one check. Don't trust an old comment's bug number as ground truth.
 
-# Check the leaderboard again — is Team 1 on top?
-curl http://localhost:3000/api/leaderboard
+## A useful starting prompt
 
-# Try submitting an absurd score — does anything stop you?
-curl -X POST http://localhost:3000/api/leaderboard/score \
-  -H "Content-Type: application/json" \
-  -d '{"teamId": 2, "challengeId": "rescue", "points": 99999}'
+```text
+Trace a score from HTTP request through the store to API and root dashboard.
+Compare the two aggregation paths.
+Identify reproducible correctness defects, not styling preferences.
+For each proposed fix: give a failing test, expected behavior, and a minimal diff.
+Preserve write operations when changing reads to defensive copies.
+Reject invalid input without changing state.
 ```
 
----
+## Prove it
 
-## Your Mission
+Keep a ledger with **observation / reproduction / expected behavior / fix / passing test**.
+At least three defect reproductions and three tests are required for full regression
+proof. A test should fail on the original bug, not simply confirm that the app responds.
 
-There are **12 bugs** hiding in this codebase. Use Copilot to find and fix them all.
-
-### Bug Bounty Board
-
-| # | Symptom | Points | File(s) |
-|---|---------|--------|---------|
-| 1 | Leaderboard shows lowest score first | 15 | `db.js`, `server.js` |
-| 2 | Teams 4, 5, 6 don't appear on the dashboard | 15 | `server.js` (root route) |
-| 3 | `GET /api/teams/1` returns 404 | 15 | `routes/teams.js` |
-| 4 | `GET /api/leaderboard/team/1` returns empty array | 10 | `routes/leaderboard.js` |
-| 5 | Score submission accepts any teamId type | 10 | `routes/leaderboard.js` |
-| 6 | You can submit 99999 points for a 100-point challenge | 10 | `routes/leaderboard.js` |
-| 7 | "Last Updated" shows the wrong timestamp | 10 | `db.js` |
-| 8 | Deleting a team can skip entries | 10 | `routes/teams.js` |
-| 9 | Team data can be mutated by any caller | 10 | `db.js` |
-| 10 | Dashboard never auto-refreshes | 15 | `views/dashboard.ejs` |
-| 11 | Team colors exist in data but aren't displayed | 10 | `views/dashboard.ejs` |
-| 12 | Error handler exposes stack traces | 10 | `server.js` |
-
-**Total: 150 points** (if you find all 12)
-
----
-
-## Copilot Debugging Playbook
-
-### The CRAFT Framework for Bug Hunting
-
-> **C**ontext — _"This is an Express.js leaderboard API with an in-memory data store"_  
-> **R**ole — _"Act as a senior code reviewer"_  
-> **A**ttributes — _"Focus on data type mismatches, sort order, and missing edge cases"_  
-> **F**ormat — _"List each bug with file, line, description, and fix"_  
-> **T**ests — _"Include a test case that proves each fix works"_
-
-### Killer Prompts
-
-| Strategy | Prompt |
-|----------|--------|
-| **Shotgun scan** | Select all of `db.js` → _"Find all bugs in this code"_ |
-| **Targeted hunt** | _"Why would GET /api/teams/1 return 404 when team 1 exists?"_ |
-| **Explain first** | Select the sort → `/explain` → then _"Is this sort correct for a leaderboard?"_ |
-| **Fix command** | Select buggy code → `/fix` |
-| **Type detective** | _"Find all places where string/number type mismatches could cause bugs"_ |
-
-### Slash Commands
-
-| Command | Use for |
-|---------|---------|
-| `/explain` | Understand what suspicious code does |
-| `/fix` | Auto-fix a selected bug |
-| `/tests` | Generate a test that catches the bug |
-
----
-
-## Scoring
-
-Each bug is worth points based on difficulty. The presenter will verify fixes by running:
+Use synthetic IDs and a disposable team instance. The legacy CLI checker creates
+and deletes data; it provides diagnostic hints, **not official points**.
 
 ```bash
-# Quick smoke test
-curl http://localhost:3000/api/leaderboard        # Should show descending order
-curl http://localhost:3000/api/teams/1             # Should return team, not 404
-curl http://localhost:3000/api/leaderboard/team/1  # Should return scores, not []
-
-# Submit score and verify
-curl -X POST http://localhost:3000/api/leaderboard/score \
-  -H "Content-Type: application/json" \
-  -d '{"teamId": 1, "challengeId": "rescue", "points": 85}'
-curl http://localhost:3000/api/leaderboard        # Team 1 should be near top
+node ../scoring/score-checker.js http://localhost:3000 --phase 2 --json
+# Run only against your disposable exercise instance.
+# Record proof yourself; don't copy its total into the event board.
 ```
 
-**Bonus:** Generate test files with Copilot that prove each bug is fixed (+10 bonus per test file).
+| Clock | Crew move |
+|---|---|
+| 0-5 | Reproduce one defect; Verifier records expected behavior |
+| 5-20 | Fix in small slices and write regression tests |
+| 20-25 | Cross-check the API and dashboard; retest invalid state changes |
+| 25-30 | Run suite, capture evidence, disclose remaining gaps |
 
----
-
-## ⏱ Time Check
-
-| Clock | What |
-|-------|------|
-| 0:00 | Start hunting — use `curl` to reproduce the symptoms |
-| 0:05 | Should have found the obvious ones (sort, 404) |
-| 0:15 | Deep into the subtle bugs (type coercion, mutable state) |
-| 0:25 | Fixing final bugs, testing fixes |
-| 0:30 | ⏰ Time! Bug count recorded. |
+Hints carry no penalty. Any failure simulation stays inside your own app.
+**Judge proof:** 12 checks x 10 + reproduction ledger 10 + regression suite 20.
+Full details: [the rubric](../judging/RUBRIC.md).

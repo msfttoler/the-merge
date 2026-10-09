@@ -14,3 +14,7 @@ dist/
 .vscode/settings.json
 .idea/
 hackathon/starter/node_modules/
+
+# Private event records and rehearsal exports
+event/data/
+merge-event-export*.json

@@ -1,0 +1,11 @@
+{
+  "name": "the-merge-event-kit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The Merge: a reusable, evidence-led Copilot customer event",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node event/server.mjs",
+    "test": "node --test event/*.test.mjs"
+  }
+}

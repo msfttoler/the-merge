@@ -1,115 +1,125 @@
-# Judging Rubric — The Merge
+# The Merge / Canonical VBD rubric
 
-## Overview
+**700 core points + up to 140 bonus = 840 maximum.** This document is the official
+scoring source for the modern event host. Old checker totals and the legacy HTML
+scorecard are not interchangeable with it.
 
-Teams are scored across all 4 phases. Phases 1-3 are scored by the presenter based on completion. Phase 4 includes audience voting.
+Publish the rubric before building begins. Judge verified behavior, not generated
+lines, tool mode, audience popularity, feature count, or a team's starting expertise.
+Incidents exercise these criteria; they never add surprise requirements or points.
 
----
+## Judging method
 
-## Phase 1 — Rescue (100 pts)
+Score each criterion **full**, **half**, or **zero**. Full means the stated proof
+exists; half means a demonstrated partial result with a clear gap; zero means no
+reliable evidence. All criterion values are even, so totals remain integer points.
+For Act II checks, full = pass; half = narrowly demonstrated partial behavior;
+zero = failing/unverified.
 
-| Criteria | Points | Verified By |
-|----------|--------|-------------|
-| Server starts without errors | 15 | `node server.js` runs clean |
-| Dashboard loads at localhost:3000 | 15 | Browser check |
-| All `var` replaced with `const`/`let` | 10 | Quick grep: `grep -r "var " *.js` |
-| ES modules (no `require()`) | 10 | Check for `import`/`export` |
-| `moment` removed, using native dates | 10 | Check package.json |
-| `body-parser` removed | 10 | Check package.json |
-| `lodash` removed, using native methods | 10 | Check package.json |
-| Error handler doesn't leak stack traces | 10 | `curl` a bad route, check response |
-| **Stretch:** async/await | 5 | Code review |
-| **Stretch:** input validation | 5 | Try POST with empty body |
+Save **one total per crew per category** in `/host`. Include the criterion subtotals,
+test commands/results or observed journey, and a judge alias in the evidence note.
+Saving a category again replaces its total and preserves the correction in the audit.
+Do not paste secrets, customer code, personal data, or private repository URLs.
 
----
+## Act I / Rescue / 100
 
-## Phase 2 — Bug Hunt (150 pts)
+| Criterion | Points | Full-credit proof |
+|---|---:|---|
+| Runtime contract preserved | 30 | Starts; `/`, `/health`, team/challenge/leaderboard routes keep expected data shapes |
+| Clear modern JavaScript | 20 | ES modules, appropriate `const`/`let`, no mixed exports; crew can explain changes |
+| Dependency simplification | 20 | Replace `moment`, `lodash`, `body-parser` usage with native JS / Express; no broken imports |
+| Repeatable handoff | 20 | Another teammate follows documented setup/start/check path successfully |
+| Reviewed change | 10 | Small explainable diff; no unreviewed mass rewrite |
+| **Total** | **100** | |
 
-| Bug | Points | How to Verify |
-|-----|--------|---------------|
-| Leaderboard sorts descending (highest first) | 15 | Submit different scores, check order |
-| All 6 teams appear on dashboard | 15 | Visual check — all teams listed |
-| `GET /api/teams/1` returns team (not 404) | 15 | `curl` test |
-| `GET /api/leaderboard/team/1` returns scores | 10 | `curl` test |
-| Score type coercion (string teamId works) | 10 | POST with `"teamId": "1"` |
-| Max points validation | 10 | POST with `points: 99999` → rejected |
-| lastUpdated shows most recent timestamp | 10 | Submit two scores, check timestamp |
-| Delete team doesn't skip entries | 10 | Delete team, verify clean removal |
-| getTeams returns copy (not mutable reference) | 10 | Code review |
-| Dashboard auto-refreshes | 15 | Change a score via API, see it update |
-| Team colors displayed | 10 | Visual check — colored indicators |
-| Stack traces hidden in error responses | 10 | `curl` a bad endpoint |
+No prize for using `async` on synchronous code. Teams may fix bugs early; don't
+require artificial phase boundaries that preserve known failures.
 
-**Bonus:** Test files generated (+10 per test file, max +30)
+## Act II / Trust nothing / 150
 
----
+These **12 observable checks** replace the inconsistent historical bug catalogs.
+The remaining issues are intentionally discoverable in the exercise.
 
-## Phase 3 — Features (200 pts)
+| Check | Points | Full-credit proof |
+|---|---:|---|
+| API ranking | 10 | Different scores sort highest first |
+| Dashboard/API parity | 10 | Root shows zero-score crews once each and correct totals/order across multiple challenge scores |
+| Team ID lookup | 10 | Numeric path ID finds the stored numeric team |
+| Team score lookup | 10 | Numeric path ID returns that team's scores |
+| Score ID normalization | 10 | `"1"` and `1` target the same valid team; malformed IDs rejected |
+| Score bounds | 10 | Negative and over-cap points rejected without state mutation |
+| Score type validation | 10 | Missing, nonnumeric, nonfinite, or incompatible points rejected; totals stay numeric |
+| Team input validation | 10 | Empty/invalid names and invalid member/color types rejected safely |
+| Latest timestamp | 10 | Most recent score update is reflected, not the first entry |
+| Deletion lifecycle | 10 | Removed team and its scores disappear; other teams unchanged; missing team handled clearly |
+| State ownership | 10 | Read helpers cannot mutate internal collections; explicit create/update/delete still work |
+| Safe error responses | 10 | Controlled failure has a descriptive response with no stack/internal detail |
 
-Score each implemented feature at its tier value. Features that partially work get half points.
+**Regression proof: 30 points.** Use this even-valued breakdown so half-credit
+remains an integer:
 
-| Tier | Per Feature | Max If All Built |
-|------|------------|-----------------|
-| Tier 1 (Essential) | 20 pts | 100 |
-| Tier 2 (Impressive) | 30 pts | 150 |
-| Tier 3 (Showstopper) | 40 pts | 200 |
-| Tier 4 (Legendary) | 50 pts | Unlimited |
+| Proof criterion | Points | Full-credit proof |
+|---|---:|---|
+| Before/after defect ledger | 10 | At least three reproducible failures with corresponding fixes and commands |
+| Executable regression suite | 20 | At least three passing tests that would fail on the original defects; crew explains why |
+| **Act II total** | **150** | 120 behavior + 30 proof |
 
-**Cap at 200 for scoring purposes** but record actual totals for tiebreaking.
+Checking missing teams only in `db.getLeaderboard()` is insufficient: the original
+root route has its own nested-loop join. A defensive copy without updating write
+paths can break CRUD. Verify the lifecycle, not just a comment saying "fixed."
 
-### Feature Verification Checklist
+## Act III / Build the experience / 200
 
-For each claimed feature:
-- [ ] Does it actually work? (full / half / broken)
-- [ ] Is it visible in the dashboard? (not just server-side)
-- [ ] Was it built with Copilot? (honor system, but ask)
+| Criterion | Points | Full-credit proof |
+|---|---:|---|
+| One useful user journey | 60 | Named user completes a meaningful task end to end |
+| Live data accuracy | 40 | Updates without reload; values match API; current/stale status is honest |
+| Failure + recovery | 40 | Simulated failed refresh is visible; last-good state retained; recovery verified |
+| Accessibility + responsiveness | 40 | Keyboard path, labels/focus, narrow view, reduced-motion behavior if animated |
+| Acceptance proof | 20 | Agreed acceptance checklist demonstrated, including one non-happy path |
+| **Total** | **200** | |
 
----
+Fancy animation cannot replace usability. Polling is fine. Paid services, WebSockets,
+sound, and confetti are optional and do not automatically earn points.
 
-## Phase 4 — Final Boss (250 pts)
+## Act IV / The final merge / 250
 
-### Demo Score (100 pts — audience vote)
+| Criterion | Points | Full-credit proof |
+|---|---:|---|
+| User problem + coherent story | 20 | Clear user, need, and why the proposed experience helps |
+| Live working journey | 60 | Two-minute demo completes the chosen task; a recording alone does not earn this criterion |
+| Honest limitation + fallback | 20 | Discloses one limitation; usable fallback shown without pretending it is live |
+| Verified release critical path | 40 | Critical-path test command passes and crew explains its coverage |
+| Release handoff | 20 | Reproducible startup, configuration boundary, and known-risk note |
+| Maintainable structure | 20 | Clear responsibilities and explainable code |
+| Safe handling + trust | 20 | No obvious input/error exposure introduced; reviewed generated changes |
+| Review discipline | 10 | Inspectable change history or reviewed diff; no unexamined generation claims |
+| Transferable Monday practice | 20 | Specific real-work practice linked to an observed event task |
+| Owner + 14-day experiment | 20 | Owner alias, next step, review date, and evidence to collect |
+| **Total** | **250** | Demo 100 + release 60 + quality 50 + transfer 40 |
 
-Each audience member gets 3 votes. Points allocated proportionally:
-- Most votes: 100 pts
-- Second: 75 pts
-- Third: 50 pts
-- Others: 25 pts each
+## Bonus / capped at 140
 
-### Code Quality (50 pts — presenter review)
+| Criterion | Points | Evidence beyond core requirements |
+|---|---:|---|
+| Extra verification | 40 | Additional regression cases beyond the core minimum, with meaningful edge coverage |
+| Crew ally | 40 | Receiving crew acknowledges a useful explanation/assist; no keyboard takeover |
+| Exceptional handoff | 30 | Another crew runs a documented check unaided or a working container starts cleanly |
+| Memorable, usable identity | 30 | Coherent crew/product identity integrated accessibly into the user journey |
 
-| Criteria | Points |
-|----------|--------|
-| Code is readable and well-organized | 15 |
-| No obvious security issues | 10 |
-| Proper error handling | 10 |
-| Clean commit history (if using git) | 5 |
-| Tests exist | 10 |
+One consolidated bonus score per crew. No double credit for the baseline three tests,
+the required same-crew handoff, or simply typing a name. Bonus is not an incident bounty.
 
-### Bonuses
+## Ties, fairness, and appreciation awards
 
-| Bonus | Points |
-|-------|--------|
-| Containerized (Dockerfile works) | +30 |
-| Best single feature (audience pick) | +50 |
-| Helped another team | +20 |
-| Creative team name / branding on dashboard | +10 |
+Tie order: **higher total**, then **higher Final merge**, then **higher Features**.
+If still tied, share the rank/award; alphabetical display is not a tiebreaker.
+The host reflects shared competition ranks (1, 1, 3).
 
----
+Appreciation awards: Trust Builder, Customer Champion, Best Handoff, Crew Ally,
+Crowd Favorite. Give a short evidence-based citation. Audience preference does not
+change point totals; no automatic win for a popular team.
 
-## Final Standings
-
-| Phase | Max |
-|-------|-----|
-| Phase 1 — Rescue | 100 |
-| Phase 2 — Bug Hunt | 150 |
-| Phase 3 — Features | 200 |
-| Phase 4 — Final Boss | 250 |
-| **Grand Total** | **700** |
-| Possible Bonuses | +140 |
-
-### Tiebreaker Rules
-
-1. Higher Phase 4 demo score wins
-2. If still tied, higher Phase 3 feature count wins
-3. If STILL tied, audience applause meter (scientific, very accurate)
+Before reveal: check all four acts for every crew, allow corrections, export the
+ledger, resolve disputes, then publish. Reveal locks scoring. Assistance and hints
+never cost points. Same rules apply with chat/manual edits if agent features are unavailable.

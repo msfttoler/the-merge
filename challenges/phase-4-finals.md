@@ -1,122 +1,52 @@
-# Phase 4 — Final Boss 🏆
+# Act IV / The final merge
 
-**Time:** 30 minutes (15 polish + 15 demos)  
-**Points:** Up to 250  
-**Story:** _"This is it. You've rescued the code, squashed the bugs, and built features. Now make it shine. In 15 minutes, every team demos their leaderboard to the room. The crowd decides the winner."_
+**15 minutes of release polish + showcase / 250 points**
 
----
+**Your user:** the customer deciding whether this experience deserves trust.
 
-## Part 1: Final Polish (15 min)
+The board will go dark for the showcase. The room cannot see the final standings.
+Your job is not to add another feature. Your job is to make the release defensible.
 
-This is free time to:
+## Ship this
 
-- **Fix anything broken** — last chance to get features working
-- **Visual polish** — colors, spacing, typography, animations
-- **Add one more thing** — that "wow" feature you've been saving
-- **Prepare your demo** — decide who presents, what to show, and what story to tell
+| Release proof | What you demonstrate |
+|---|---|
+| Critical path | One passing test/check for the highest-risk user task |
+| Customer journey | The chosen user completes their task in the live app |
+| Honest fallback | A disclosed limitation and a fallback that does not pretend to be live |
+| Handoff | Reproducible startup/configuration and an inspectable reviewed diff |
+| Monday transfer | One practice, owner alias, review date, and evidence to collect |
 
-### Polish Prompts
+## Your two-minute story
 
-| Goal | Prompt |
-|------|--------|
-| **Make it beautiful** | _"Redesign this CSS to look like a premium sports scoreboard — dark background, glowing accents, clean typography"_ |
-| **Add personality** | _"Add subtle CSS animations: pulse on the #1 rank, fadeIn on page load, hover effects on rows"_ |
-| **Clean the code** | _"Refactor this file for readability — rename unclear variables, add brief comments, remove dead code"_ |
-| **Generate docs** | Select your code → `/doc` to auto-generate JSDoc |
-| **Last-minute test** | _"Generate a test suite for the leaderboard API endpoints"_ |
+| Seconds | Show |
+|---|---|
+| 0-20 | "Our user is __. Their problem is __." |
+| 20-80 | Complete the real task; show the state changing |
+| 80-100 | Show a passing critical-path test and disclose a limitation |
+| 100-120 | "On Monday we will __. Owner __. Review __." |
 
-### Containerize It (Bonus: 30 pts)
+Keep a saved screenshot/test result as backup. Label it honestly as captured proof.
+A recording alone does not earn the live working-journey criterion.
+For larger rooms, your facilitator assigns a judged gallery slot; every crew gets
+the same core judging opportunity.
 
-If you want to go for glory:
+## A useful starting prompt
 
+```text
+Review our release candidate against the acceptance criteria.
+Name launch blockers and verify the highest-risk path.
+Do not add features.
+Give a concise run/check handoff, known limitations, and an honest network fallback.
+Help us write a two-minute demo: problem, live proof, test evidence, Monday practice.
 ```
-Ask Copilot: "Generate a production Dockerfile for this Express app. 
-Multi-stage build, non-root user, health check included."
-```
 
-Then:
+| Build minute | Move |
+|---|---|
+| 0-5 | Freeze scope; identify the critical path and run its test |
+| 5-10 | Resolve only release blockers; inspect generated changes |
+| 10-15 | Rehearse the demo and fallback; record the release handoff |
 
-```
-Ask Copilot: "Generate a docker-compose.yml for local development 
-with hot reload."
-```
-
----
-
-## Part 2: Demo Showcase (15 min)
-
-Each team gets **2 minutes** to demo their leaderboard.
-
-### Demo Format
-
-1. **Show the dashboard** — open it in a browser, let the room see it live
-2. **Highlight your best feature** — what are you most proud of?
-3. **Show a Copilot moment** — what was the coolest thing Copilot did for you?
-4. **Take a bow** — (optional: drop the mic)
-
-### Demo Tips
-- Have your browser open and ready BEFORE your turn
-- Zoom in (`Cmd +` / `Ctrl +`) so the back row can see
-- If something breaks during the demo, laugh it off — it happens to everyone
-- **Storytelling > feature count** — one amazing thing beats five mediocre things
-
----
-
-## Part 3: Judging
-
-After all demos, the room votes. Judges (presenters + audience) score on:
-
-| Criteria | Weight | What We're Looking For |
-|----------|--------|----------------------|
-| **Works** | 30% | Dashboard loads, shows correct leaderboard, scores update |
-| **Looks** | 25% | Visual design, layout, colors, typography, animations |
-| **Wow** | 25% | Creative features, surprising additions, "I didn't think of that" moments |
-| **Copilot Craft** | 20% | Effective use of Copilot — smart prompts, multi-file edits, creative usage |
-
-### How Voting Works
-
-1. Each audience member gets **3 votes** (can't vote for own team)
-2. Votes are cast by show of hands (or use a quick poll tool)
-3. Presenter breaks ties
-4. **Winner gets bragging rights** (and maybe stickers 🎉)
-
----
-
-## Final Score Calculation
-
-| Phase | Max Points |
-|-------|-----------|
-| Phase 1 — Rescue | 100 |
-| Phase 2 — Bug Hunt | 150 |
-| Phase 3 — Features | 200 |
-| Phase 4 — Final Boss | 250 |
-| **Total Possible** | **700** |
-
-Phase 4 scoring:
-- **Demo quality** (audience vote): up to 100 pts
-- **Code quality** (presenter review): up to 50 pts
-- **Containerized**: +30 bonus pts
-- **Best single feature** (audience pick): +50 bonus pts
-- **Helped another team**: +20 bonus pts
-
----
-
-## 🎉 After the Final Boss
-
-### The Big Reveal
-
-The winning team's leaderboard becomes the **official display** for the rest of the day (or gets screenshot immortalized in the repo).
-
-### Wrap-Up (5 min)
-
-**Five Things to Remember:**
-
-1. **Copilot is a collaborator, not a replacement** — you directed every decision
-2. **Prompt quality = output quality** — CRAFT framework works
-3. **Start rough, iterate fast** — don't try to get it perfect on the first prompt
-4. **Context is king** — the more Copilot knows, the better it helps
-5. **You just built a full-stack app in 4 hours** — using a tool that didn't exist 3 years ago
-
----
-
-_"The best leaderboard is the one that tracks itself." — definitely a real quote_
+**Judge proof:** demo 100 + release 60 + quality 50 + transfer 40.
+Audience appreciation is separate from scored standings. Shared ties are honored.
+Full details: [the rubric](../judging/RUBRIC.md).

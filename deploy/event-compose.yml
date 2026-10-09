@@ -1,0 +1,16 @@
+services:
+  control-room:
+    build:
+      context: ..
+      dockerfile: deploy/event.Dockerfile
+    ports:
+      - "${MERGE_BIND_ADDRESS:-127.0.0.1}:${MERGE_PORT:-4173}:4173"
+    environment:
+      MERGE_HOST_TOKEN: "${MERGE_HOST_TOKEN:?Set a private MERGE_HOST_TOKEN of at least 24 characters}"
+      MERGE_DATA_FILE: /app/event/data/event.json
+    volumes:
+      - event-data:/app/event/data
+    restart: unless-stopped
+
+volumes:
+  event-data:

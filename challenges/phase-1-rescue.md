@@ -1,80 +1,60 @@
-# Phase 1 — Rescue the Leaderboard 🛟
+# Act I / Rescue the launch
 
-**Time:** 25 minutes  
-**Points:** Up to 100  
-**Story:** _"We found this leaderboard code from last year's intern. It... runs. Mostly. Your mission: use Copilot to modernize it and get a working dashboard on screen."_
+**25 minutes / 100 points**
 
----
+**Your user:** the next engineer who must run and understand this inherited app.
 
-## Setup (2 min)
+The organizers forgot the leaderboard. They found a prototype. It runs just well
+enough to make everybody nervous. Your first mission: rescue the startup path,
+modernize with intent, and leave a handoff another teammate can use.
 
-```bash
-cd starter
-npm install
-node server.js
+## Ship this
+
+- A running dashboard and preserved API routes/data shapes.
+- Modern JavaScript: ES modules and appropriate `const`/`let`.
+- Native dates/collection methods and Express parsing instead of unnecessary dependencies.
+- A short setup/start/check path verified by a different teammate.
+- A reviewed diff you can explain without reading an AI answer aloud.
+
+Use your isolated `starter/` copy. The official event host is separate; never
+submit exercise scores to it or modify another crew's app.
+
+## A useful starting prompt
+
+```text
+Inspect this Express/EJS leaderboard before editing.
+Plan a minimal modernization that preserves routes and JSON shapes.
+Use modern JavaScript and native Node/browser APIs where practical.
+List migration risks, including module boundaries and file paths.
+Implement one coherent change, show the diff, and verify startup.
+Do not add async wrappers to synchronous code just to look modern.
 ```
 
-Open **http://localhost:3000** — behold the sadness.
+Inspect the plan, ask follow-ups, and verify each change. AI assistance is not
+verification. Agents are optional; chat plus reviewed manual edits is valid.
 
----
+## Prove it
 
-## Your Mission
+```bash
+npm install
+npm start
+curl http://localhost:3000/health
+curl http://localhost:3000/api/teams
+curl http://localhost:3000/api/leaderboard/challenges
+```
 
-Use GitHub Copilot to modernize this codebase. You don't need to fix bugs yet (that's Phase 2) — just get it cleaned up and running properly.
+Open the root dashboard. Record exact commands and their results. Stop the process
+before a restart; don't launch several copies on the same port.
 
-### Must-Do (70 points)
+| Clock | Crew move |
+|---|---|
+| 0-3 | Navigator reads; Driver plans; Verifier names the startup contract |
+| 3-15 | Implement a bounded modernization; review and smoke-test |
+| 15-20 | Another teammate follows the handoff; rotate the Driver |
+| 20-25 | Freeze scope; capture proof and known gaps |
 
-| Task | Points | Hint |
-|------|--------|------|
-| Replace `var` with `const`/`let` throughout | 10 | Select a file → Copilot Chat: _"Modernize this to use const/let"_ |
-| Convert `require()` to ES module `import` | 10 | Add `"type": "module"` to package.json first |
-| Replace `moment` with native `Date` / `Intl` | 10 | _"Replace moment.js usage with native JavaScript date formatting"_ |
-| Remove `body-parser` (built into Express 4.16+) | 10 | `express.json()` and `express.urlencoded()` |
-| Replace lodash with native array methods | 10 | `.find()`, `.filter()`, `.reduce()` — JS has these now |
-| Convert callbacks to arrow functions | 10 | _"Convert all function expressions to arrow functions"_ |
-| Fix the error handler (don't leak stack traces) | 10 | Only show stack in development, never in production |
+Story cards arrive through Mission control. Hints are free and shared. Fixing a
+bug early is allowed; do not deliberately preserve a defect for the next act.
 
-### Stretch Goals (30 bonus points)
-
-| Task | Points |
-|------|--------|
-| Add `async/await` where appropriate | 10 |
-| Add input validation on POST endpoints | 10 |
-| Add proper HTTP status codes (201 for create, 204 for delete) | 10 |
-
----
-
-## Copilot Moves to Try
-
-| What | How |
-|------|-----|
-| **Modernize a whole file** | Select all → Chat: _"Modernize this Express code to use ES modules, const/let, and arrow functions"_ |
-| **Replace a dependency** | _"Replace all moment.js usage with native Date and Intl.DateTimeFormat"_ |
-| **Ghost text magic** | Start typing `const app = ` and let Copilot complete the modern setup |
-| **Inline chat** | Select the lodash import → `Cmd+I`: _"Remove lodash, use native array methods"_ |
-
----
-
-## Scoring
-
-The presenter will check:
-- [ ] Server starts without errors
-- [ ] Dashboard loads at localhost:3000
-- [ ] No `var` remaining in codebase
-- [ ] No `require()` remaining (ES modules)
-- [ ] `moment` and `body-parser` removed from package.json
-- [ ] Error handler doesn't expose stack traces
-
-**Bonus points** for teams that finish early and help others.
-
----
-
-## ⏱ Time Check
-
-| Clock | What |
-|-------|------|
-| 0:00 | Start — `npm install`, open in VS Code |
-| 0:05 | Should have identified all the legacy patterns |
-| 0:15 | Most files modernized |
-| 0:20 | Testing and fixing import issues |
-| 0:25 | ⏰ Time! Scores recorded. |
+**Judge proof:** runtime 30 + modern JS 20 + dependencies 20 + handoff 20 + review 10.
+Full details: [the rubric](../judging/RUBRIC.md).
