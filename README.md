@@ -11,6 +11,31 @@ showcase. The final reveal rewards evidence, not just spectacle.
 14-day adoption experiment.** Observations are measured; productivity and ROI are
 not invented.
 
+## See it in action
+
+**Real screens from a running rehearsal · synthetic crew names · no customer data**
+
+![Live mission control showing the shared clock, verified final standings, and released story cards](docs/screenshots/live-board.png)
+
+*One shared clock. Judge-verified points. The story unfolds for every crew at once.*
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/four-acts.png" alt="The four mission cards, with deliverables and customer value for each act" width="100%">
+      <p><strong>Four acts, one story.</strong><br>Every mission has a concrete deliverable, proof, and customer value.</p>
+    </td>
+    <td width="50%" valign="top">
+      <img src="docs/screenshots/facilitator-control-room.png" alt="Private facilitator desk with the event clock, controls, crew roster, and story-card releases" width="100%">
+      <p><strong>Private facilitator desk.</strong><br>Clock, scoring, crew roster, and story releases stay off the projector.</p>
+    </td>
+  </tr>
+</table>
+
+<img src="docs/screenshots/value-receipt.png" alt="Facilitator value receipt with synthetic confidence, task-time, and test observations plus privacy note" width="100%">
+
+*A useful handoff: descriptive crew observations, clear limitations, and a private export—not an invented ROI claim.*
+
 ## Run the customer experience
 
 Prerequisite: **Node.js 22+**. The event control room has **zero external dependencies**.
@@ -107,6 +132,7 @@ host tab requires the token again. Use synthetic data and team aliases only.
 ```text
 event/        Modern, independent Node.js control room + browser UI + tests
 delivery/     Customer brief, director incident deck, outcome/follow-up templates
+docs/screenshots/ Real interface captures using synthetic rehearsal data
 challenges/   Participant-facing briefs and acceptance criteria
 judging/      Canonical rubric (use /host to record it)
 starter/      Intentionally legacy/broken participant exercise, unchanged

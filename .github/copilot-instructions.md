@@ -2,10 +2,10 @@
 
 ## Project Context
 
-This is a **hackathon repo** for "The Merge — Build. Break. Ship." — a GitHub Copilot hackathon.
-Participants learn Copilot by building a real hackathon leaderboard/dashboard over
-4 hours. The repo contains curriculum docs, hackathon starter code, legacy demo code,
-and presenter materials.
+This is a **hackathon repo** for "The Merge — Build. Break. Ship." — a GitHub Copilot
+customer experience. Participants practice Copilot workflows while building a
+leaderboard/dashboard over four hours. The repo contains the event control room,
+intentionally broken participant starter, delivery materials, and retained legacy demos.
 
 ## Conventions
 
@@ -33,15 +33,14 @@ they are the starting point for the hackathon.
 
 ## Demo Code
 
-Files under `demos/01-legacy-upgrade/` are **intentionally outdated and buggy.**
-Do not fix or modernize them unless the user explicitly asks you to.
-
-Files under `demos/03-quick-wins/buggy-flights.js` contain **intentional bugs.**
-Do not fix them unless asked.
+The pages under `admin/`, `registration/`, `results/`, and `spectator/`, plus the
+legacy checker under `scoring/`, are retained demo surfaces. Do not modernize them
+unless the user explicitly asks. The current customer event uses `event/`; its
+official standings must not depend on a participant's intentionally broken app.
 
 ## Documentation
 
-Workshop docs in `docs/copilot-workshop/` are instructor-facing Markdown.
-The hackathon guide is `HACKATHON-GUIDE.md`.
+The instructor runbook is `HACKATHON-GUIDE.md`; customer, deployment, challenge,
+and scoring guidance lives in `delivery/`, `deploy/`, `challenges/`, and `judging/`.
 Keep docs concise, scannable, and heavy on code examples. Use tables over prose
-where possible.
+where possible, and update documentation when changing the behavior it describes.
