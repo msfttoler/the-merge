@@ -1,69 +1,70 @@
-# The Merge — Build. Break. Ship.
+# The Merge / A launch worth saving
 
-### A hands-on hackathon that teaches GitHub Copilot by making people use it under pressure
+**Four hours. One broken leaderboard. An engineering team that leaves with a
+practical Copilot workflow, not another bookmarked tutorial.**
 
----
+## The customer promise
 
-## The Problem
+Copilot adoption cannot be established by assigning licenses or watching a demo.
+The Merge gives a customer team a safe, shared delivery challenge and makes the
+result visible: reviewed code, reproduced bugs, passing tests, a working user
+journey, and a concrete next experiment.
 
-Every organization buying GitHub Copilot faces the same challenge: adoption. Licenses get assigned, tutorials get bookmarked, and then nothing changes. Developers go back to writing code the way they always have. The ROI story stalls.
+The story is simple: **"We forgot to build the leaderboard."** The room inherits a
+rough prototype and becomes the recovery crew. The leaderboard they rescue is the
+product they're competing to build. A separate, dependable control room keeps
+official standings fair while their prototypes evolve.
 
-Workshops don't fix this. Slides about "prompt engineering" don't fix this. What fixes it is putting people in a room, giving them a broken codebase, starting a clock, and saying *"Ship it."*
+## Why people will want to attend
 
-## The Concept
+| Hook | Customer experience | Guardrail |
+|---|---|---|
+| A launch worth saving | Rescue code before the room opens | Fictional stakes, never career pressure |
+| The board cannot be trusted | A missing crew and impossible points trigger an investigation | All teams receive the same challenge |
+| A real customer changes the brief | The signal drops; the UI must handle stale data | Simulated only inside team apps |
+| The final board goes dark | Sealed standings create a genuine awards reveal | Scores remain judge-verified and auditable |
+| More than one way to win | Trust Builder, Customer Champion, Best Handoff, Crew Ally | Popularity does not decide core scores |
+| Monday is part of the ending | Every crew names one real-world practice and owner | No fabricated productivity or savings claim |
 
-**"We forgot to build the hackathon leaderboard."**
+## The delivery package
 
-That's the opening line. Teams of 2-4 developers are handed a deliberately terrible Express.js application — written by a fictional intern, riddled with bugs, legacy patterns, and questionable architectural decisions. Over 4 hours, they must rescue it, debug it, extend it, and transform it into something they're proud to demo.
+A customer-ready front door, mission control, projector board, timed agenda,
+private facilitator desk, controlled story releases, objective acceptance criteria,
+one canonical rubric, persistent evidence ledger, and a private outcome export.
+The package includes customer preparation, invitations, presenter talk tracks,
+recovery guidance, and a 14-day follow-up template.
 
-The twist: **the leaderboard they're building is the one tracking their own scores.** Every bug they fix makes their own scoreboard more accurate. Every feature they add makes the room's experience better. The competitive pressure is real because the thing they're competing on is the thing they're building.
+**Recommended room:** 4-8 crews, 2-4 developers per crew. One lead facilitator plus
+one technical/judging assistant per four crews. Larger groups use a gallery demo
+format and additional judges. Remote delivery requires a rehearsal and
+customer-approved network/access controls.
 
-Every task is designed so that Copilot is the fastest path to completion. Ghost text for boilerplate. Inline chat for targeted fixes. The chat panel for architecture decisions. Agent mode for multi-file refactors. By the end, participants haven't just *heard* about Copilot — they've leaned on it under a deadline and seen what it can actually do.
+**Customer prerequisites:** Node.js 22+, an editor with Copilot available, approved
+accounts and policies, power, network access, and a synthetic exercise repository.
+Account permissions, plan limits, and available Copilot features must be checked
+before the event. Nobody needs to upload proprietary code.
 
-## How It Works
+## The value receipt
 
-| Phase | Time | What Happens | Copilot Skills Practiced |
-|-------|------|--------------|--------------------------|
-| **Rescue** | 25 min | Modernize legacy code — replace `var`, remove dead dependencies, fix the error handler | Ghost text, inline chat, `/fix` |
-| **Bug Hunt** | 30 min | Find and fix 12 planted bugs — sorting errors, type coercion, data mutation | Chat panel, `/explain`, prompt engineering |
-| **Feature Frenzy** | 40 min | Build from a menu of 20+ features — dark mode, live animations, WebSockets, confetti | Agent mode, multi-file edits, creative prompting |
-| **Final Boss** | 30 min | Polish, containerize, and demo to the room. Audience votes for the winner | Full workflow — plan, build, test, ship |
+| Before | During | After |
+|---|---|---|
+| Sponsor selects one workflow friction and a success hypothesis | Crews collect test evidence, a named task's observed time, and reviewed artifacts | Sponsor gets the evidence summary and an owner-backed 14-day experiment |
+| Crews record confidence on a 1-5 scale | Facilitator records criterion-level awards, not generated-code volume | Confidence change is reported with sample size and limitations |
+| Customer approves data and access boundaries | All data stays synthetic; exports use crew aliases | Customer decides retention and what may be shared |
 
-Scoring is structured (700 points + bonuses), with automated verification tools for Phases 1 and 2 and judge-scored rubrics for Phases 3 and 4. A spectator-mode big screen keeps the room engaged between rounds.
+This is **evidence of participation and capability practice**, not proof of ROI.
+Actual adoption and operational impact need a follow-up in the customer's environment.
 
-## What's In the Box
+## Positioning
 
-Everything needed to run the event, start to finish:
+> **Don't sit through another AI workshop. Save the launch.**
+> Bring your crew to The Merge: a four-hour, hands-on Copilot experience where the
+> board is broken, the clock is real, and your next move matters. Leave with something
+> you can demonstrate and one practice you can use on Monday.
 
-- **Starter code** with 12+ intentional bugs and legacy anti-patterns
-- **Phase-by-phase challenge guides** with prompt suggestions and scoring criteria
-- **Automated score checker** (CLI and browser-based) for objective grading
-- **Registration page** for self-service team sign-up
-- **Admin panel** for facilitators to manage scores in real time
-- **Spectator big-screen view** optimized for projectors — animated leaderboard with phase timers
-- **Post-event results page** with team certificates
-- **Facilitator cheat sheet** and a full 4-hour presenter script
-- **One-command Docker deployment** for single-URL event hosting
-- **Detailed judging rubric** and printable scorecards
+**Ask:** one sponsor, four protected hours, participating crews, approved Copilot
+access, and a follow-up owner. Confirm logistics and access in a rehearsal rather
+than promising universal ten-minute setup.
 
-Setup takes under 10 minutes. The only prerequisites are Node.js, VS Code, and GitHub Copilot licenses.
-
-## Why It Works
-
-**It's not training — it's competition.** Nobody zones out during a hackathon. The format creates urgency that no workshop can replicate. Teams don't practice Copilot in a sandbox; they depend on it to win.
-
-**It's self-reinforcing.** The leaderboard is both the product and the scoreboard. Every improvement is immediately visible to the entire room. When a team adds confetti animations and the big screen explodes with color, everyone in the room wants to know how they did it. The answer is always Copilot.
-
-**Skills transfer immediately.** Every phase maps to real-world work developers already do — modernizing legacy code, debugging production issues, building features under deadlines, preparing for demos. Monday morning, they'll open Copilot at their desk and know exactly what to type.
-
-**It scales.** The event works with 8 people or 80. It runs in a conference room or a ballroom. It needs one facilitator and one projector. Everything else is in the repo.
-
-## The Ask
-
-Four hours. A room with power and WiFi. GitHub Copilot licenses for participants. One facilitator who can read from a script.
-
-What you get back: an engineering org that actually uses the tool you're already paying for — and a story worth telling at the next all-hands.
-
----
-
-*The Merge is fully self-contained and ready to run today.*
+**Success:** the agreed user journey works, crews can explain and verify their AI-assisted
+changes, and the sponsor commits to reviewing one adoption experiment after 14 days.

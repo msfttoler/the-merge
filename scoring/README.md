@@ -1,5 +1,12 @@
 # 🔀 The Merge — Score Checker
 
+> **Legacy diagnostic tool, not the modern VBD score source.** The official
+> event uses [`judging/RUBRIC.md`](../judging/RUBRIC.md) and the authenticated
+> control room at `:4173/host`. This checker's weights differ and some checks are
+> heuristics. It creates/deletes data: run only on a disposable crew exercise at
+> `:3000`, never the event host. Do not use the old browser "Submit Score" flow
+> for the customer event. The documentation below describes retained legacy behavior.
+
 Automated verification system for "The Merge" hackathon. Tests teams' running apps for correct bug fixes.
 
 ## CLI Usage

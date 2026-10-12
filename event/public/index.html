@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="The Merge: a four-hour Copilot customer experience. Rescue the leaderboard. Earn trust. Ship the final merge.">
+  <title>The Merge / Build. Break. Ship.</title>
+  <script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("scoutTheme");
+    const theme =
+      param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+  </script>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to event content</a>
+  <header class="masthead">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">M/</span> THE MERGE<span class="brand-caption">BUILD. BREAK. SHIP.</span></a>
+    <div class="header-actions"><span class="tag">CUSTOMER EXPERIENCE / 4 HOURS</span><button id="theme" class="quiet" aria-label="Switch color theme">Theme</button><button id="projector" class="quiet" aria-pressed="false">Projector</button></div>
+  </header>
+  <main id="main">
+    <section class="hero" id="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">NOT ANOTHER WORKSHOP. A LAUNCH WORTH SAVING.</p>
+        <h1>The board is broken.<br>The room is yours.</h1>
+        <p class="lede">The organizers forgot the leaderboard. Your crew has four hours, an inherited codebase, and Copilot. Rescue it. Make it trustworthy. Ship something the room cannot ignore.</p>
+        <div class="hero-actions"><a class="button" href="#live">Enter mission control <span aria-hidden="true">↗</span></a><a class="text-link" href="#missions">Explore the four acts</a></div>
+        <p class="hero-foot">Real code. Shared suspense. Proof before points.</p>
+      </div>
+      <aside class="launch-card" aria-label="Event promise">
+        <div class="launch-top"><span class="eyebrow">LAUNCH STATUS</span><span class="status-dot" aria-hidden="true"></span></div>
+        <p class="launch-word">Recovery<br>crew needed.</p>
+        <div class="signal" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <dl class="promise"><div><dt>04</dt><dd>Acts to earn trust</dd></div><div><dt>700</dt><dd>Core points / +140 bonus</dd></div><div><dt>01</dt><dd>Practice to take to Monday</dd></div></dl>
+      </aside>
+    </section>
+    <div class="experience-strip"><span><b>BUILD</b> with intent</span><span><b>BREAK</b> assumptions</span><span><b>SHIP</b> with evidence</span></div>
+    <nav class="tabs" aria-label="Event views">
+      <a href="#live" data-view="live">Mission control</a>
+      <a href="#missions" data-view="missions">The four acts</a>
+      <a href="#value" data-view="value">Monday impact</a>
+    </nav>
+    <p id="connection" class="connection" role="status" aria-live="polite">Connecting to the control room...</p>
+    <section id="live" class="view">
+      <div class="section-heading"><div><p class="eyebrow" id="customer">YOUR CUSTOMER EVENT</p><h2 id="event-name">Mission control</h2></div><span class="tag" id="event-status">Waiting for the host</span></div>
+      <div class="live-grid">
+        <article class="clock-card"><p class="eyebrow" id="segment-label">UP NEXT</p><h3 id="segment-title">The missing leaderboard</h3><p class="clock" id="clock" aria-label="Time remaining">10:00</p><div class="clock-bottom"><span id="clock-status">Paused</span><span id="segment-number">01 / 15</span></div><progress id="clock-progress" max="600" value="600" aria-label="Segment time remaining"></progress></article>
+        <article class="transmission"><p class="eyebrow">TRANSMISSION / FROM THE CONTROL ROOM</p><p id="announcement">The leaderboard is missing. Your crew is the recovery plan.</p><div class="transmission-foot"><span class="tag">NO SABOTAGE. NO SURPRISE PENALTIES.</span><span>Every crew gets the same briefing.</span></div></article>
+      </div>
+      <div class="board-heading"><h3>Crews on the board</h3><span id="board-note" class="muted">Verified scores only</span></div>
+      <div id="standings"></div>
+      <div class="board-heading"><h3>Incoming story cards</h3><span class="muted">Released by your facilitator</span></div>
+      <div id="incidents" class="incident-grid"></div>
+      <details class="timeline"><summary>The full four-hour flight plan</summary><ol id="schedule"></ol></details>
+    </section>
+    <section id="missions" class="view" hidden>
+      <div class="section-heading"><div><p class="eyebrow">ONE STORY. FOUR ESCALATING ACTS.</p><h2>Build the board. Earn the room.</h2></div><span class="tag">EVIDENCE &gt; VIBES</span></div>
+      <div id="mission-cards" class="mission-grid"></div>
+      <aside class="callout"><h3>Every crew can win something.</h3><p>Grand Champion. Trust Builder. Customer Champion. Best Handoff. Crew Ally. The competition rewards useful work, not who had the biggest head start. Ask for an assist at any time; hints carry no penalty.</p></aside>
+    </section>
+    <section id="value" class="view" hidden>
+      <div class="section-heading"><div><p class="eyebrow">THE CUSTOMER GETS MORE THAN A TROPHY</p><h2>Make Monday different.</h2></div><span class="tag">OBSERVED OUTCOMES / NOT ROI CLAIMS</span></div>
+      <div class="value-grid"><article class="panel"><span class="value-number">01 / BASELINE</span><h3>Name the friction.</h3><p>Pick one real workflow before the event: understanding inherited code, writing regression tests, or shipping a useful feature. Record confidence and an observed task time.</p></article><article class="panel"><span class="value-number">02 / EVIDENCE</span><h3>Show what changed.</h3><p>Keep the reviewed diff, the passing tests, and the user journey. Capture confidence again. Task time is an observation, not proof of productivity improvement.</p></article><article class="panel"><span class="value-number">03 / TRANSFER</span><h3>Make one commitment.</h3><p>Choose a safe Monday experiment, name an owner, and review it after 14 days. No repository uploads, employee rankings, or fabricated savings.</p></article></div>
+      <div class="callout"><p class="eyebrow">CUSTOMER HANDOFF</p><h3 id="outcome-count">Waiting for crew debriefs</h3><p>Your facilitator exports the evidence ledger and agreed practices. Customer-specific artifacts stay with the customer; only synthetic data belongs in the event app.</p></div>
+    </section>
+    <section id="host-area" hidden></section>
+  </main>
+  <footer><span>THE MERGE / Built under pressure. Proven together.</span><a href="/host">Facilitator access</a></footer>
+</body>
+</html>
