@@ -3,6 +3,38 @@
 Use this to scope, invite, prepare, and repeat a four-hour value-based delivery.
 The package is reusable; customer readiness is not automatic.
 
+## What the room sees
+
+These are captures from the running event app using synthetic rehearsal data only.
+The public board keeps the shared clock, verified standings, and released story
+cards in one place; private evidence and facilitator controls stay off the projector.
+
+![Live event board with a running clock, verified crew standings, and released story cards](../docs/screenshots/live-board.png)
+
+*The live experience: one shared clock, visible proof, and a final reveal.*
+
+<details>
+<summary>Preview the missions, facilitator desk, and evidence handoff</summary>
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="../docs/screenshots/four-acts.png" alt="Four mission cards outlining the event's escalating acts" width="100%">
+      <p><strong>Participant journey:</strong> four escalating acts, each with a shippable deliverable.</p>
+    </td>
+    <td width="50%" valign="top">
+      <img src="../docs/screenshots/facilitator-control-room.png" alt="Private facilitator controls and the running event state" width="100%">
+      <p><strong>Facilitator view:</strong> run the clock, release story cards, and manage evidence.</p>
+    </td>
+  </tr>
+</table>
+
+<img src="../docs/screenshots/value-receipt.png" alt="Synthetic crew observations with self-reported confidence, observed task time, test count, and privacy limitations" width="100%">
+
+*The value receipt keeps sample size and measurement limits visible; it makes no causal productivity or ROI claim.*
+
+</details>
+
 ## Engagement brief / fill with the sponsor
 
 | Field | Agreement |
